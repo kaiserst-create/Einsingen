@@ -350,7 +350,7 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
           <p>Bearbeiten: Änderungen an mitgelieferten Einträgen behalten die Nr, damit deine Abläufe weiter passen. Die Karte zeigt dann geändert. Mit Original wiederherstellen im Formular holst du die ursprüngliche Fassung zurück.</p>
           <p>Kopieren: macht aus dem Fenster eine Kopie mit allen Feldern, auch mit noch nicht gespeicherten Änderungen. Speichern legt sie als eigenen Eintrag mit neuer Nr an, das Original bleibt unverändert.</p>
           <p>Löschen: der Eintrag wandert in den Papierkorb. Der Knopf Papierkorb erscheint oben, sobald etwas drin liegt. Dort kannst du alles wiederherstellen.</p>
-          <p>Neue Nr: die Seite vergibt sie nach der Phase: K Körper, A Atem, S Sanfter Einsatz, R Resonanz, U Umfang, B Beweglichkeit, G Gehör, C Cool-down, P Pop und Musical. Kanons bekommen KA, Zungenbrecher ZB.</p>
+          <p>Neue Nr: die Seite vergibt sie nach der Phase: K Körper, A Atem, S Sanfter Einsatz, R Resonanz, U Umfang, B Beweglichkeit, G Gehör, P Pop und Musical, C Cool-down. Kanons bekommen KA, Zungenbrecher ZB.</p>
           <p>Noten: im Formular unter Noten einen oder mehrere Blöcke im ABC-Format einfügen, zum Beispiel von abcnotation.com. Die Vorschau zeigt sofort, ob es passt.</p>
           <p>Im laufenden Ablauf: Leertaste startet und stoppt, die Pfeiltasten springen vor und zurück. Ton a spielt den Kammerton mit 440 Hz.</p>
           <p>EW in der Quelle heißt Erfahrungswert aus der Praxis, nicht durch die Quellen belegt.</p>
@@ -404,6 +404,9 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
 {
 const OFFLINE=true;
 const PH=["Körper","Atem","Sanfter Einsatz","Resonanz, Vokale","Umfang, Register","Beweglichkeit, Artikulation","Gehör, Intonation","Cool-down","Pop, Musical"];
+/* Anzeigereihenfolge: Pop, Musical vor Cool-down. Die Phasennummern in den Daten bleiben gleich. */
+const PHORD=[1,2,3,4,5,6,7,9,8];
+const PHR=Object.fromEntries(PHORD.map((p,i)=>[p,i]));
 const LET="KASRUBGCP";
 const KINDS={ex:"Übung",kanon:"Kanon",zb:"Zungenbrecher"};
 const A=(m,l,q,k,body,lyr)=>["X:1","M:"+m,"L:"+l,"Q:"+q,"K:"+k,body].concat((lyr||[]).map(x=>"w: "+x)).join("\n");
@@ -590,7 +593,7 @@ R06:[["Muster",A("4/4","1/4","1/4=80","C","E E E E | E E2 z |]",["wa ma na nga s
 R07:[["Muster",A("4/4","1/4","1/4=76","C","G, C E G | F D C2 |]",["blui ui ui ui ui ui ui","ui ui ui ui ui ui ui"])]],
 U05:[["Muster",A("4/4","1/4","1/4=60","C","!p!\"^gleiten\"C2 G2 | C4 |]",["woh _ _"])],["Mit Unterquart",A("4/4","1/4","1/4=60","C","!p!\"^gleiten\"C2 G2 | C2 G,2 | C4 |]",["woh _ _ _ _"])]],
 U06:[["Muster",A("4/4","1/8","1/4=80","C","C2 E2 G2 c2 | e2 d2 B2 G2 | E2 D2 C4 |]",["ni _ _ _ nja _ _ _ _ _ _"])]],
-U07:[["Muster",A("6/8","1/8","3/8=60","C","G | c2 G c2 G | e2 c G E C |]",["Die So, die So, die Son _ _ _ ne","Die Tul, die Tul, die Tul _ _ _ pe"])]],
+U07:[["Muster",A("6/8","1/8","3/8=60","C","G | c2 G c2 G | c G E C3 |]",["Die So, die So, die Son _ _ ne","Die Tul, die Tul, die Tul _ _ pe"])]],
 U08:[["Muster",A("4/4","1/4","1/4=88","C","C C C z | c B A G | F E D C |]",["hei hei hei lu lu lu lu lu lu lu lu"])]],
 U09:[["Muster, in Ganztönen tiefer",A("4/4","1/4","1/4=72","C","E D C A, | G,4 |]",["wo wo wo wo wo"])]],
 U10:[["Muster",A("4/4","1/8","1/4=96","C","C E G A G2 E C | C4 z4 |]",["ho si an na ho si an na"])]],
@@ -1017,11 +1020,11 @@ function renderFilters(){
   const ex=allEx().filter(e=>e.kind==="ex");
   $("#q").value=F.q;
   $("#fuer").innerHTML=["Alle","Chor","Solo"].map(f=>`<button class="chip" data-act="fuer" data-f="${f}" aria-pressed="${F.fuer===f}">${f}</button>`).join("")+`<button class="chip" data-act="favf" aria-pressed="${F.fav}">Favoriten <small>${S.favs.filter(n=>allEx().some(e=>e.nr===n)).length}</small></button>`;
-  $("#phases").innerHTML=`<button class="chip" data-act="ph" data-p="0" aria-pressed="${F.ph===0}">Alle Phasen</button>`+PH.map((n,i)=>`<button class="chip" data-act="ph" data-p="${i+1}" aria-pressed="${F.ph===i+1}" style="--c:var(--p${i+1})"><i class="dot"></i>${esc(n)} <small>${ex.filter(e=>e.ph===i+1).length}</small></button>`).join("");
+  $("#phases").innerHTML=`<button class="chip" data-act="ph" data-p="0" aria-pressed="${F.ph===0}">Alle Phasen</button>`+PHORD.map(p=>`<button class="chip" data-act="ph" data-p="${p}" aria-pressed="${F.ph===p}" style="--c:var(--p${p})"><i class="dot"></i>${esc(PH[p-1])} <small>${ex.filter(e=>e.ph===p).length}</small></button>`).join("");
 }
 function renderEx(){
   const q=F.q.trim().toLowerCase();
-  const list=allEx().filter(e=>e.kind==="ex"&&(!F.ph||e.ph===F.ph)&&(F.fuer==="Alle"||e.fuer===F.fuer||e.fuer==="Beide")&&(!F.fav||S.favs.includes(e.nr))&&(!q||[e.nr,e.name,e.anl,e.ziel,e.vari,e.lage,PDF[e.nr]||""].join(" ").toLowerCase().includes(q))).sort((a,b)=>a.ph-b.ph||a.nr.localeCompare(b.nr));
+  const list=allEx().filter(e=>e.kind==="ex"&&(!F.ph||e.ph===F.ph)&&(F.fuer==="Alle"||e.fuer===F.fuer||e.fuer==="Beide")&&(!F.fav||S.favs.includes(e.nr))&&(!q||[e.nr,e.name,e.anl,e.ziel,e.vari,e.lage,PDF[e.nr]||""].join(" ").toLowerCase().includes(q))).sort((a,b)=>PHR[a.ph]-PHR[b.ph]||a.nr.localeCompare(b.nr));
   $("#count").textContent=list.length===1?"1 Übung":list.length+" Übungen";
   $("#exlist").innerHTML=list.length?list.map(cardHTML).join(""):`<div class="empty">Keine Übung passt zu diesen Filtern.</div>`;
   watchScores($("#exlist"));
@@ -1112,7 +1115,7 @@ function drawExForm(first){
 ${EF.mode==="edit"&&EF.isBase?`<p class="help">Mitgelieferter Eintrag. Die Nr bleibt gleich, damit deine Abläufe weiter passen. Das Original lässt sich jederzeit wiederherstellen.</p>`:""}
 ${EF.mode==="copy"?`<p class="help">Die Kopie bekommt beim Speichern eine neue Nr. Das Original bleibt unverändert.</p>`:""}
 <div class="f2"><div><label for="ef-kind">Typ</label><select id="ef-kind">${Object.keys(KINDS).map(x=>`<option value="${x}"${EF.kind===x?" selected":""}>${KINDS[x]}</option>`).join("")}</select></div>
-<div><label for="ef-ph">Phase</label><select id="ef-ph">${PH.map((n,i)=>`<option value="${i+1}"${EF.ph===i+1?" selected":""}>${i+1} ${esc(n)}</option>`).join("")}</select></div>
+<div><label for="ef-ph">Phase</label><select id="ef-ph">${PHORD.map((p,i)=>`<option value="${p}"${EF.ph===p?" selected":""}>${i+1} ${esc(PH[p-1])}</option>`).join("")}</select></div>
 <div><label for="ef-fuer">Für</label><select id="ef-fuer">${["Beide","Chor","Solo"].map(f=>`<option${EF.fuer===f?" selected":""}>${f}</option>`).join("")}</select></div>
 <div><label for="ef-min">Minuten</label><input id="ef-min" type="number" min="0" step="0.5" inputmode="decimal" value="${esc(EF.min)}"></div></div>
 <div class="f2">${fld("ef-name","Name",EF.name)}${fld("ef-lang","Sprache, optional",EF.lang)}</div>
@@ -1174,8 +1177,8 @@ function optsFor(nr){
   const ex=allEx();
   let h="";
   if(!ex.some(e=>e.nr===nr)){const e=exBy(nr);h=`<option value="${esc(nr)}" selected>${esc(nr)} ${e?esc(e.name)+", im Papierkorb":"fehlt"}</option>`}
-  const grp=(label,list)=>list.length?`<optgroup label="${esc(label)}">`+list.map(e=>`<option value="${esc(e.nr)}"${e.nr===nr?" selected":""}>${esc(e.nr)} ${esc(e.name)}</option>`).join("")+"</optgroup>":"";
-  for(let i=1;i<=9;i++)h+=grp(PH[i-1],ex.filter(e=>e.kind==="ex"&&e.ph===i));
+  const grp=(label,list)=>list.length?`<optgroup label="${esc(label)}">`+list.map(e=>`<option value="${esc(e.nr)}"${e.nr===nr?" selected":""}>${S.favs.includes(e.nr)?"★ ":""}${esc(e.nr)} ${esc(e.name)}</option>`).join("")+"</optgroup>":"";
+  for(const p of PHORD)h+=grp(PH[p-1],ex.filter(e=>e.kind==="ex"&&e.ph===p));
   h+=grp("Kanons",ex.filter(e=>e.kind==="kanon"));
   h+=grp("Zungenbrecher",ex.filter(e=>e.kind==="zb"));
   return h;
