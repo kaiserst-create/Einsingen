@@ -242,6 +242,9 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
 .install p{margin:0}
 .install b{font-weight:700}
 .install .sbtn{flex:none}
+.install-b{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;flex:none}
+.sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+@media (max-width:520px){.install{flex-direction:column}.install-b{align-self:stretch}.install-b .sbtn{flex:1 1 0}}
 .shr{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.18em}
 .shr svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2}
 </style>
@@ -270,8 +273,11 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
 </nav>
 <main class="wrap">
   <div class="install" id="install" hidden>
-    <p><b>Als App installieren:</b> In Safari auf <span class="shr" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 11v9h14v-9"/></svg></span> Teilen tippen, dann <b>Zum Home-Bildschirm</b>. Danach die App einmal mit Internet öffnen, bis oben „Offline bereit“ steht.</p>
-    <button class="sbtn" data-act="noinstall">Ausblenden</button>
+    <p id="install-txt"><b>Als App installieren:</b> In Safari auf <span class="shr" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 11v9h14v-9"/></svg></span> Teilen tippen, dann <b>Zum Home-Bildschirm</b>. Danach die App einmal mit Internet öffnen, bis oben „Offline bereit“ steht.</p>
+    <div class="install-b">
+      <button class="sbtn pri" id="install-go" data-act="doinstall" hidden>Installieren</button>
+      <button class="sbtn" data-act="noinstall">Ausblenden</button>
+    </div>
   </div>
   <section id="v-ablaeufe">
     <div class="bar">
@@ -1261,7 +1267,7 @@ function openExport(){
   try{if(xpURL)URL.revokeObjectURL(xpURL);xpURL=URL.createObjectURL(new Blob([txt],{type:"application/json"}))}catch(e){xpURL=null}
   const fileBtn=xpFile?`<button class="btn pri" data-act="xshare">Teilen oder in Dateien sichern</button>`:(xpURL?`<a class="btn pri" href="${xpURL}" download="${fn}">Als Datei speichern</a>`:"");
   showModal(`<h2>Daten exportieren</h2>
-<p class="help">${xpFile?"Teilen öffnet das Menü zum Sichern: In Dateien sichern, per AirDrop an ein anderes Gerät oder per Mail.":"Als Datei speichern legt eine Sicherungsdatei an."} Oder den Text kopieren und zum Beispiel in einer Notiz ablegen.</p>
+<p class="help">${xpFile?"Teilen öffnet das Menü zum Sichern: In Dateien sichern, per AirDrop an ein anderes Gerät oder per Mail.":"Als Datei speichern legt eine Sicherungsdatei an, meist im Ordner Downloads."} Oder den Text kopieren und zum Beispiel in einer Notiz ablegen.</p>
 <label for="xp">Deine Daten</label><textarea id="xp" class="code" rows="8" readonly>${esc(txt)}</textarea>
 <p class="help" id="xp-msg" aria-live="polite"></p>
 <div class="row" style="margin-top:12px">${fileBtn}<button class="btn" data-act="xcopy">Text kopieren</button><button class="btn" data-act="closemodal">Schließen</button></div>`,"Daten exportieren");
@@ -1399,6 +1405,7 @@ document.addEventListener("click",ev=>{
   else if(a==="xshare")shareExport(b);
   else if(a==="reload")location.reload();
   else if(a==="noinstall"){$("#install").hidden=true;try{localStorage.setItem(LSI,"1")}catch(e){}}
+  else if(a==="doinstall")doInstall();
   else if(a==="import")openImport();
   else if(a==="doimport")doImport(b);
   else if(a==="resetex")arm(b,()=>{delete S.edits[EF.orig];persist();closeModal();renderAll()},"Änderungen verwerfen?");
@@ -1458,7 +1465,30 @@ window.addEventListener("hashchange",()=>{route();watchScores()});
 /* App: offline, Installation, Updates */
 const LSI="einsingen-installhinweis-v1";
 const STANDALONE=(()=>{try{return navigator.standalone===true||matchMedia("(display-mode: standalone)").matches}catch(e){return false}})();
-const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const ANDROID=/Android/i.test(navigator.userAgent);
+const IOS=!ANDROID&&(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1));
+const IOS_TXT=$("#install-txt").innerHTML;
+const ANDROID_TXT='<b>Als App installieren:</b> Im Browser-Menü <b>⋮</b> auf <b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b> tippen. Danach die App einmal mit Internet öffnen, bis oben „Offline bereit“ steht.';
+const PROMPT_TXT='<b>Als App installieren:</b> Dann startet Einsingen wie eine eigene App, auch ohne Internet.';
+let instEv=null;
+function showInstall(){
+  const box=$("#install");
+  let hide=false;try{hide=localStorage.getItem(LSI)==="1"}catch(e){}
+  const txt=instEv?PROMPT_TXT:IOS?IOS_TXT:ANDROID?ANDROID_TXT:"";
+  if(STANDALONE||hide||!txt){box.hidden=true;return}
+  $("#install-txt").innerHTML=txt;
+  $("#install-go").hidden=!instEv;
+  box.hidden=false;
+}
+async function doInstall(){
+  const e=instEv;if(!e)return;
+  instEv=null;
+  try{await e.prompt();const c=await e.userChoice;if(c&&c.outcome==="accepted"){$("#install").hidden=true;return}}catch(err){}
+  showInstall();
+}
+/* Android und Chrome: den eingebauten Installationsdialog über den eigenen Knopf anbieten */
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();instEv=e;showInstall()});
+window.addEventListener("appinstalled",()=>{instEv=null;$("#install").hidden=true});
 let readyT=null;
 async function checkReady(){
   clearTimeout(readyT);
@@ -1472,8 +1502,7 @@ function initApp(){
   const fsb=document.querySelector('[data-act="fs"]');
   const de=document.documentElement;
   if(fsb&&(STANDALONE||!(de.requestFullscreen||de.webkitRequestFullscreen)))fsb.hidden=true;
-  let hide=false;try{hide=localStorage.getItem(LSI)==="1"}catch(e){}
-  if(IOS&&!STANDALONE&&!hide)$("#install").hidden=false;
+  showInstall();
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
   if(!("serviceWorker" in navigator)||!window.isSecureContext||!window.caches){setStatus("local");return}
   const had=!!navigator.serviceWorker.controller;
@@ -1484,7 +1513,7 @@ function initApp(){
   }).catch(()=>setStatus("local"));
 }
 $("#foot").textContent="Die App läuft ohne Internet. Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und der Papierkorb bleiben in dieser App auf diesem Gerät. Zum Übertragen auf ein anderes Gerät oder aus der Online-Version: Regeln und Quellen, Daten sichern und übertragen. Notensatz mit abcjs, Wiedergabe mit einfachem Synthesizer.";
-$("#xp-info").textContent="Exportieren sichert Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und Papierkorb als Datei. Mit Importieren holst du sie zurück, auf einem anderen iPhone oder iPad oder aus der Online-Version. Tipp: ab und zu exportieren. Wenn du die App vom Home-Bildschirm löschst, sind auch ihre Daten weg.";
+$("#xp-info").textContent="Exportieren sichert Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und Papierkorb als Datei. Mit Importieren holst du sie zurück, auf einem anderen Gerät oder aus der Online-Version. Tipp: ab und zu exportieren. Wenn du die App vom Gerät löschst, können auch ihre Daten weg sein.";
 renderRules();renderAll();route();
 loadAbc("abcjs-basic-min.js",()=>{abcState="fail";redrawScores()});
 initApp();
