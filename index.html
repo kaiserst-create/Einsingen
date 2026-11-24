@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Einsingen</title>
+<meta name="description" content="Einsingübungen, Kanons und Abläufe für Chor und Solo, offline nutzbar.">
+<meta name="theme-color" content="#3a1846">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Einsingen">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Familjen+Grotesk:wght@600;700&display=swap" crossorigin>
+<style>
+/* VOICE everyday, a rehearsal tool used at the music stand
+   IDEA the conductor's rehearsal plan: every warm-up as a coloured strip of minutes, every pattern as a printed staff
+   PICTURE each Ablauf as a proportional phase strip, notation on every card, a large ring timer in the run view
+   COLOUR white ground, ink #17131c, concert-velvet plum band, coral accent, nine phase hues, a night profile
+   TYPE Familjen Grotesk for titles, Atkinson Hyperlegible for text readable at a distance
+   LAYOUT plum title band and sticky tabs, cards in a grid, one column on the phone */
+:root{color-scheme:light;--bg:#fff;--ink:#17131c;--mute:#5e5768;--line:#e7e2eb;--line2:#cbc3d3;--card:#faf8fb;--plum:#3a1846;--plum2:#e9dcef;--acc:#d93a24;--focus:#2f7fd8;--p1:#8b8794;--p2:#14968e;--p3:#2f7fd8;--p4:#7b52c7;--p5:#c23a8f;--p6:#e5701a;--p7:#d9a90f;--p8:#3f9d4f;--p9:#e03131}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#141017;--ink:#f2eef5;--mute:#b7afbf;--line:#2c2533;--line2:#4a4053;--card:#1c1721;--plum:#2b1235;--plum2:#d9c6e2;--acc:#ff6a4d;--focus:#7fb2ff}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#141017;--ink:#f2eef5;--mute:#b7afbf;--line:#2c2533;--line2:#4a4053;--card:#1c1721;--plum:#2b1235;--plum2:#d9c6e2;--acc:#ff6a4d;--focus:#7fb2ff}
+:root[data-profil=light]{color-scheme:light;--bg:#fff;--ink:#17131c;--mute:#5e5768;--line:#e7e2eb;--line2:#cbc3d3;--card:#faf8fb;--plum:#3a1846;--plum2:#e9dcef;--acc:#d93a24;--focus:#2f7fd8}
+:root[data-profil=dark]{color-scheme:dark;--bg:#100c13;--ink:#f3eff6;--mute:#b9b0c2;--line:#2a2331;--line2:#4a4053;--card:#1a1520;--plum:#24102c;--plum2:#d9c6e2;--acc:#ff6a4d;--focus:#7fb2ff}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif;overflow-x:clip}
+body.lock{overflow:hidden}
+h1,h2,h3{font-family:"Familjen Grotesk",system-ui,sans-serif;letter-spacing:-.02em;line-height:1.1;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,4vw,env(safe-area-inset-left,0px));padding-right:max(16px,4vw,env(safe-area-inset-right,0px))}
+.top{background:var(--plum);color:#fff}
+.top .wrap{padding-top:clamp(22px,4vw,40px);padding-bottom:14px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 28px}
+h1{font-size:clamp(36px,6vw,52px)}
+.sub{margin:6px 0 0;color:var(--plum2);font-size:17px}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.status{font-size:14px;color:var(--plum2);display:flex;align-items:center;gap:8px}
+.status i{width:9px;height:9px;border-radius:50%;background:#9be3a7;flex:none}
+.status[data-s=local] i,.status[data-s=slow] i,.status[data-s=fail] i{background:#ffc46b}
+.status[data-s=loading] i,.status[data-s=saving] i{background:#cfc2d6}
+.prof{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--plum2)}
+.prof div{display:flex;gap:2px;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
+.prof button{border:0;background:none;color:var(--plum2);min-height:40px;padding:4px 14px;border-radius:999px;font-weight:700;cursor:pointer}
+.prof button[aria-pressed=true]{background:#fff;color:#2b1235}
+.prof button:focus-visible{outline:3px solid #fff;outline-offset:1px}
+.tabs{position:sticky;top:0;z-index:20;background:var(--plum);box-shadow:0 1px 0 rgba(255,255,255,.12) inset}
+.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs a{color:var(--plum2);text-decoration:none;padding:0 14px;min-height:50px;display:flex;align-items:center;border-bottom:4px solid transparent;white-space:nowrap;font-weight:700;flex:none}
+.tabs a[aria-current=page]{color:#fff;border-bottom-color:var(--acc)}
+.tabs a:focus-visible{outline:3px solid #fff;outline-offset:-3px}
+main{padding-top:24px;padding-bottom:72px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.bar h2{font-size:clamp(26px,3.4vw,34px)}
+.lead{margin:4px 0 0;color:var(--mute);max-width:70ch}
+.btn{min-height:44px;padding:9px 18px;border-radius:10px;border:1px solid var(--line2);background:var(--bg);cursor:pointer;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.pri:hover{filter:brightness(1.06)}
+.btn.warn{color:var(--acc)}
+.btn[data-armed]{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:disabled{opacity:.4;cursor:default}
+a.btn{text-decoration:none}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.plans{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,470px),1fr));align-items:start}
+.plan{border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--card)}
+.plan-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.plan h3{font-size:26px}
+.tag{display:inline-block;font-size:13px;font-weight:700;color:var(--mute);margin-top:6px}
+.desc{margin:8px 0 0;color:var(--mute);font-size:16px}
+.tot{font-family:"Familjen Grotesk",system-ui,sans-serif;font-weight:700;font-size:clamp(40px,5vw,52px);line-height:1;white-space:nowrap;text-align:right}
+.tot small{display:block;font-size:14px;font-family:"Atkinson Hyperlegible",system-ui,sans-serif;font-weight:400;color:var(--mute);margin-top:4px}
+.strip{display:flex;gap:2px;height:30px;border-radius:7px;overflow:hidden;margin:18px 0 4px}
+.seg{min-width:3px;flex-basis:0}
+.scale{display:flex;justify-content:space-between;font-size:13px;color:var(--mute)}
+.steps{list-style:none;padding:0;margin:12px 0 16px}
+.steps li{display:grid;grid-template-columns:12px 3.2em minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:16px}
+.steps .m{white-space:nowrap;color:var(--mute);font-variant-numeric:tabular-nums}
+.steps .nr{font-weight:700}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--c);display:inline-block;flex:none}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.filters{display:grid;gap:12px;margin-bottom:18px}
+.search{display:flex;gap:10px;flex-wrap:wrap}
+.search input{flex:1 1 260px}
+input,select,textarea{font-size:16px;min-height:44px;padding:8px 11px;border:1px solid var(--line2);border-radius:9px;background:var(--bg);width:100%}
+textarea{min-height:84px;resize:vertical;line-height:1.45}
+textarea.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:42px;padding:7px 14px;border-radius:999px;border:1px solid var(--line2);background:var(--bg);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{font-weight:400;opacity:.75}
+.count{color:var(--mute);font-size:15px;margin:0 0 12px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));align-items:start}
+.card{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--card)}
+.ex-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ex-top .nr{font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;padding:3px 10px 3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+.meta{font-size:14px;color:var(--mute);white-space:nowrap}
+.star{margin-left:auto;width:44px;height:44px;border-radius:10px;border:1px solid transparent;background:none;cursor:pointer;display:grid;place-items:center;color:var(--mute)}
+.star svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2}
+.star[aria-pressed=true]{color:var(--p7)}
+.star[aria-pressed=true] svg{fill:currentColor}
+.card h3{font-size:22px;margin:6px 0 6px}
+.card p{margin:0 0 8px}
+.ziel{color:var(--mute);font-size:16px}
+.zbtxt{font-family:"Familjen Grotesk",system-ui,sans-serif;font-size:21px;line-height:1.3;margin:4px 0 10px;font-weight:600}
+details{border-top:1px solid var(--line);margin-top:10px;padding-top:4px}
+summary{cursor:pointer;font-weight:700;min-height:40px;display:flex;align-items:center;font-size:15px}
+dl{margin:4px 0 12px;display:grid;gap:2px}
+dt{font-size:14px;color:var(--mute);margin-top:6px}
+dd{margin:0}
+label{font-weight:700;font-size:15px;display:block;margin:4px 0 4px}
+.help{font-size:14px;color:var(--mute);margin:4px 0 0}
+.empty{padding:28px;border:1px dashed var(--line2);border-radius:14px;color:var(--mute);text-align:center}
+.nt{margin:12px 0 4px;border-top:1px solid var(--line);padding-top:10px}
+.nt-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px}
+.nt-t{font-weight:700;font-size:15px}
+.nt-ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sbtn{min-height:40px;padding:6px 12px;border-radius:9px;border:1px solid var(--line2);background:var(--bg);cursor:pointer;font-weight:700;font-size:14px}
+.sbtn:hover{border-color:var(--ink)}
+.sbtn[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.sbtn.sq{width:40px;padding:0}
+.trn{display:inline-flex;align-items:center;gap:4px}
+.trv{font-size:13px;color:var(--mute);min-width:5.2em;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+.score{color:var(--ink);overflow-x:auto;min-height:60px;margin-top:6px}
+.score svg{color:inherit;display:block;max-width:none}
+.score svg [fill="#000000"],.score svg [fill="#000"],.score svg [fill="black"]{fill:currentColor}
+.score svg [stroke="#000000"],.score svg [stroke="#000"],.score svg [stroke="black"]{stroke:currentColor}
+.nt-fb{font-size:15px;color:var(--mute);margin:6px 0 0}
+.nt-fb b{color:var(--ink);font-weight:700;letter-spacing:.02em}
+.cols{display:grid;gap:clamp(20px,4vw,48px);grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.rules{margin:0;padding-left:1.6em}
+.rules li{padding:8px 0;border-bottom:1px solid var(--line)}
+.rules li::marker{font-weight:700}
+.src{font-size:14px;color:var(--mute);white-space:nowrap}
+.srcs{list-style:none;margin:0;padding:0}
+.srcs li{padding:10px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:4.6em minmax(0,1fr);gap:10px;font-size:16px}
+.srcs b{font-variant-numeric:tabular-nums}
+.srcs a{overflow-wrap:anywhere}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:22px}
+.box h3{font-size:22px;margin-bottom:6px}
+.box p{margin:6px 0}
+.box ul{margin:6px 0;padding-left:1.2em}
+.box li{margin:6px 0}
+h2.sec{font-size:26px;margin:0 0 10px}
+.sechead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:28px 0 12px}
+.sechead:first-child{margin-top:0}
+.sechead h2{font-size:clamp(24px,3vw,30px)}
+.run{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;overflow:auto}
+.run-top{display:flex;align-items:center;gap:12px;padding:10px max(16px,3vw);border-bottom:1px solid var(--line)}
+.run-top h2{font-size:22px}
+.run-top .meta{font-size:15px}
+.run-top .sp{margin-left:auto;display:flex;gap:8px}
+.icon{width:44px;height:44px;border-radius:10px;border:1px solid var(--line2);background:var(--bg);cursor:pointer;display:grid;place-items:center}
+.icon svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none}
+.run-main{flex:1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,4vw,60px);align-items:center;width:100%;max-width:1240px;margin:0 auto;padding:clamp(16px,3vw,40px) max(16px,4vw)}
+.ring{position:relative;width:clamp(220px,30vw,360px);aspect-ratio:1}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ring .bgc{stroke:var(--line);fill:none}
+.ring .arc{stroke:var(--c);fill:none;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
+.clock{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.clock b{font-family:"Familjen Grotesk",system-ui,sans-serif;font-size:clamp(52px,8vw,92px);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.clock span{font-size:15px;color:var(--mute);margin-top:6px}
+.run.done .clock b{color:var(--acc)}
+.run.done .ring{animation:pulse 1s ease-in-out 3}
+@keyframes pulse{50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.run.done .ring{animation:none}.ring .arc{transition:none}}
+.run-txt h3{font-size:clamp(30px,4.4vw,48px);margin:10px 0 12px}
+.run-txt .anl{font-size:clamp(19px,2vw,23px);line-height:1.45;margin:0 0 14px;max-width:46ch}
+.run-txt .zbtxt{font-size:clamp(22px,2.6vw,30px)}
+.hint{border-left:4px solid var(--acc);padding:6px 0 6px 12px;margin:0 0 12px;font-size:18px}
+.run-txt .ziel{margin:0 0 6px}
+.run-foot{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px max(16px,3vw) calc(12px + env(safe-area-inset-bottom,0px))}
+.run-foot .strip{height:14px;margin:0 0 10px}
+.run-foot .seg.past{opacity:.3}
+.run-foot .seg.now{box-shadow:inset 0 0 0 2px var(--ink)}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
+.ctrl .btn{min-width:110px}
+.ctrl .play{min-width:150px;font-size:19px}
+.ctrl label{display:inline-flex;align-items:center;gap:6px;font-weight:400;margin:0;min-height:44px}
+.ctrl input[type=checkbox]{width:22px;height:22px;min-height:0}
+.ctrl .br{display:none}
+.rest{font-size:14px;color:var(--mute);text-align:center;margin-top:6px}
+.modal{position:fixed;inset:0;z-index:70;background:rgba(12,6,16,.55);overflow:auto;padding:max(16px,4vh) 12px}
+.panel{background:var(--bg);color:var(--ink);border-radius:16px;max-width:780px;margin:0 auto;padding:22px}
+.panel h2{font-size:28px;margin-bottom:14px}
+.f2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.edrow{display:grid;grid-template-columns:2em minmax(0,1fr) 6em auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.edrow .hn{grid-column:2/4}
+.edrow .ix{font-weight:700;text-align:center}
+.edrow .row{gap:4px}
+.edrow .row .icon{width:40px;height:40px;font-size:18px}
+.edtot{font-weight:700;margin:10px 0 16px}
+.err{color:var(--acc);font-weight:700;min-height:1.5em;margin:8px 0}
+.foot{color:var(--mute);font-size:14px;margin-top:40px}
+.more{list-style:none;padding:0;margin:0}
+.more li{padding:10px 0;border-top:1px solid var(--line)}
+.more b{display:block}
+.acts{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);gap:6px}
+.sbtn.warn{color:var(--acc)}
+.sbtn[data-armed]{background:var(--acc);border-color:var(--acc);color:#fff}
+.sbtn:disabled{opacity:.4;cursor:default}
+.flag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--mute);white-space:nowrap}
+.bar .row{align-items:center}
+.ntf{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+.ntf .nt{margin-top:8px}
+.chk{display:flex;align-items:center;gap:8px;font-weight:400;margin:8px 0 0;min-height:40px}
+.chk input{width:22px;height:22px;min-height:0;flex:none}
+.trl{list-style:none;padding:0;margin:0 0 12px}
+.trl li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.trl small{display:block;color:var(--mute);font-size:14px}
+.trh{font-size:18px;margin:16px 0 4px}
+.orig{margin-top:6px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}.run-main{grid-template-columns:minmax(0,1fr);justify-items:center}.run-txt{width:100%}.ring{width:min(64vw,250px)}.side{align-items:flex-start}}
+@media (max-width:600px){.plan-head{flex-direction:column}.tot{text-align:left}.edrow{grid-template-columns:1.6em minmax(0,1fr) 5em}.edrow .hn{grid-column:2/4}.edrow .row{grid-column:2/4}.ctrl{gap:8px}.ctrl .btn{min-width:0;flex:1 1 0;padding:9px 8px}.ctrl .play{flex:1.5 1 0;font-size:18px}.ctrl .br{display:block;flex-basis:100%;height:0}.ctrl .tone{flex:0 0 auto;min-height:40px;padding:6px 14px}.ctrl label{min-height:40px;font-size:15px}.run-foot{padding-top:8px}.run-foot .strip{margin-bottom:8px}.rest{margin-top:2px}.ring{width:min(52vw,210px)}.run-main{padding-top:14px;gap:14px}.run-top h2{font-size:19px}#phases{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}#phases .chip{flex:none}}
+/* App auf iPhone und iPad: sichere Ränder, Statusleiste, Touch */
+html{-webkit-tap-highlight-color:transparent;scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+html.lock,body.lock{overflow:hidden}
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:var(--plum);z-index:40;pointer-events:none}
+.top .wrap{padding-top:calc(clamp(22px,4vw,40px) + env(safe-area-inset-top,0px))}
+.tabs{top:env(safe-area-inset-top,0px)}
+main{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
+.modal{overscroll-behavior:contain;padding-top:calc(max(16px,4vh) + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.run{overscroll-behavior:contain}
+.run-top{position:sticky;top:0;z-index:2;background:var(--plum);color:#fff;border-bottom-color:transparent;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-left:max(16px,3vw,env(safe-area-inset-left,0px));padding-right:max(16px,3vw,env(safe-area-inset-right,0px))}
+.run-top .meta{color:var(--plum2)}
+.run-top .icon{background:transparent;border-color:rgba(255,255,255,.4);color:#fff}
+.run-top .icon:focus-visible{outline-color:#fff}
+.run-main{padding-left:max(16px,4vw,env(safe-area-inset-left,0px));padding-right:max(16px,4vw,env(safe-area-inset-right,0px))}
+.run-foot{padding-left:max(16px,3vw,env(safe-area-inset-left,0px));padding-right:max(16px,3vw,env(safe-area-inset-right,0px))}
+.upd{border:1px solid rgba(255,255,255,.55);background:none;color:#fff;border-radius:999px;min-height:36px;padding:4px 14px;font-weight:700;font-size:14px;cursor:pointer}
+.install{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:12px 14px;margin:0 0 20px;background:var(--card)}
+.install p{margin:0}
+.install b{font-weight:700}
+.install .sbtn{flex:none}
+.shr{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.18em}
+.shr svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div>
+      <h1>Einsingen</h1>
+      <p class="sub" id="sub">Übungen, Kanons und Abläufe für Chor und Solo</p>
+    </div>
+    <div class="side">
+      <div class="prof" role="group" aria-label="Profil"><span>Profil</span><div id="prof"><button data-act="prof" data-p="auto" aria-pressed="true">Auto</button><button data-act="prof" data-p="light" aria-pressed="false">Hell</button><button data-act="prof" data-p="dark" aria-pressed="false">Dunkel</button></div></div>
+      <div class="status" id="status" data-s="loading"><i></i><span>Wird für offline vorbereitet</span></div>
+      <button class="upd" id="upd" data-act="reload" hidden>Neue Version laden</button>
+    </div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Bereiche">
+  <div class="wrap">
+    <a href="#ablaeufe" data-v="ablaeufe">Abläufe</a>
+    <a href="#uebungen" data-v="uebungen">Übungen</a>
+    <a href="#kanons" data-v="kanons">Kanons und Zungenbrecher</a>
+    <a href="#regeln" data-v="regeln">Regeln und Quellen</a>
+  </div>
+</nav>
+<main class="wrap">
+  <div class="install" id="install" hidden>
+    <p><b>Als App installieren:</b> In Safari auf <span class="shr" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 11v9h14v-9"/></svg></span> Teilen tippen, dann <b>Zum Home-Bildschirm</b>. Danach die App einmal mit Internet öffnen, bis oben „Offline bereit“ steht.</p>
+    <button class="sbtn" data-act="noinstall">Ausblenden</button>
+  </div>
+  <section id="v-ablaeufe">
+    <div class="bar">
+      <div>
+        <h2>Abläufe</h2>
+        <p class="lead">Ablauf wählen, Starten tippen. Die Uhr führt dich Schritt für Schritt durch, mit Noten zum Anhören.</p>
+      </div>
+      <div class="row"><button class="btn" data-act="trash" data-trash hidden>Papierkorb</button><button class="btn" data-act="newplan">Neuer Ablauf</button></div>
+    </div>
+    <div class="plans" id="plans"></div>
+  </section>
+  <section id="v-uebungen" hidden>
+    <div class="bar">
+      <div>
+        <h2>Übungen</h2>
+        <p class="lead">Suchen, filtern, anhören und transponieren. Die Noten stehen für hohe Stimmen, Männerstimmen singen eine Oktave tiefer.</p>
+      </div>
+      <div class="row"><button class="btn" data-act="trash" data-trash hidden>Papierkorb</button><button class="btn" data-act="newex">Neue Übung</button></div>
+    </div>
+    <div class="filters">
+      <div class="search">
+        <input id="q" type="search" placeholder="Suche, z. B. Twang, Vokal, Staccato" aria-label="Übungen durchsuchen" autocomplete="off">
+        <div class="chips" id="fuer"></div>
+      </div>
+      <div class="chips" id="phases"></div>
+    </div>
+    <p class="count" id="count"></p>
+    <div class="grid" id="exlist"></div>
+  </section>
+  <section id="v-kanons" hidden>
+    <div class="bar">
+      <div>
+        <h2>Kanons und Zungenbrecher</h2>
+        <p class="lead">Gemeinfreie Kanons mit Noten und Kanon-Wiedergabe, Zungenbrecher auf Deutsch und Englisch mit Singmustern für Pop- und Musicalchöre.</p>
+      </div>
+      <div class="row"><button class="btn" data-act="trash" data-trash hidden>Papierkorb</button><button class="btn" data-act="newka">Neuer Kanon</button><button class="btn" data-act="newzb">Neuer Zungenbrecher</button></div>
+    </div>
+    <div class="sechead"><h2>Kanons</h2><span class="meta" id="ka-count"></span></div>
+    <div class="grid" id="kalist"></div>
+    <div class="box">
+      <h3>Weitere beliebte Kanons</h3>
+      <p>Diese tauchen in Kanonsammlungen immer wieder auf. Die Noten sind hier nicht eingetragen, weil ich keine prüfbare Notenquelle als Text gefunden habe. Du kannst sie über Neuer Kanon mit ABC-Noten ergänzen.</p>
+      <ul class="more" id="more"></ul>
+    </div>
+    <div class="sechead"><h2>Zungenbrecher</h2><span class="meta" id="zb-count"></span></div>
+    <div class="grid" id="zblist"></div>
+  </section>
+  <section id="v-regeln" hidden>
+    <div class="cols">
+      <div>
+        <h2 class="sec">Grundregeln</h2>
+        <ol class="rules" id="rules"></ol>
+        <div class="box">
+          <h3>Abgleich mit Quellen für Pop- und Musicalchöre</h3>
+          <ul id="abgleich"></ul>
+        </div>
+        <div class="box">
+          <h3>Komponierte Übungen in deinen PDFs</h3>
+          <p>Diese Übungen sind eigene Kompositionen mit Melodie und Text. Ich habe sie nicht abgeschrieben, sie stehen hier als Verweis auf die Seiten in deinen Dateien. Seitenzahlen wie auf den Seiten aufgedruckt.</p>
+          <ul id="verweis"></ul>
+        </div>
+        <div class="box">
+          <h3>Daten sichern und übertragen</h3>
+          <p id="xp-info">Exportieren sichert Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und Papierkorb als Datei. Mit Importieren holst du sie zurück, auch in die Offline-Version.</p>
+          <div class="row"><button class="btn" data-act="export">Exportieren</button><button class="btn" data-act="import">Importieren</button></div>
+        </div>
+        <div class="box">
+          <h3>So erweiterst du die Sammlung</h3>
+          <p>Jede Karte hat unten Bearbeiten. Im Bearbeiten-Fenster findest du auch Kopieren und Löschen. Das gilt für alle Übungen, Kanons, Zungenbrecher und Abläufe, auch für die mitgelieferten.</p>
+          <p>Bearbeiten: Änderungen an mitgelieferten Einträgen behalten die Nr, damit deine Abläufe weiter passen. Die Karte zeigt dann geändert. Mit Original wiederherstellen im Formular holst du die ursprüngliche Fassung zurück.</p>
+          <p>Kopieren: macht aus dem Fenster eine Kopie mit allen Feldern, auch mit noch nicht gespeicherten Änderungen. Speichern legt sie als eigenen Eintrag mit neuer Nr an, das Original bleibt unverändert.</p>
+          <p>Löschen: der Eintrag wandert in den Papierkorb. Der Knopf Papierkorb erscheint oben, sobald etwas drin liegt. Dort kannst du alles wiederherstellen.</p>
+          <p>Neue Nr: die Seite vergibt sie nach der Phase: K Körper, A Atem, S Sanfter Einsatz, R Resonanz, U Umfang, B Beweglichkeit, G Gehör, C Cool-down, P Pop und Musical. Kanons bekommen KA, Zungenbrecher ZB.</p>
+          <p>Noten: im Formular unter Noten einen oder mehrere Blöcke im ABC-Format einfügen, zum Beispiel von abcnotation.com. Die Vorschau zeigt sofort, ob es passt.</p>
+          <p>Im laufenden Ablauf: Leertaste startet und stoppt, die Pfeiltasten springen vor und zurück. Ton a spielt den Kammerton mit 440 Hz.</p>
+          <p>EW in der Quelle heißt Erfahrungswert aus der Praxis, nicht durch die Quellen belegt.</p>
+        </div>
+      </div>
+      <div>
+        <h2 class="sec">Quellen</h2>
+        <ul class="srcs" id="srcs"></ul>
+      </div>
+    </div>
+  </section>
+  <p class="foot" id="foot">Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und der Papierkorb werden in deinem Konto gespeichert, sobald du angemeldet bist. Sonst bleiben sie auf diesem Gerät. Notensatz mit abcjs, Wiedergabe mit einfachem Synthesizer.</p>
+</main>
+
+<div class="run" id="run" hidden role="dialog" aria-modal="true" aria-labelledby="run-title">
+  <div class="run-top">
+    <div>
+      <h2 id="run-title"></h2>
+      <div class="meta" id="run-count"></div>
+    </div>
+    <div class="sp">
+      <button class="icon" data-act="fs" aria-label="Vollbild"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button class="icon" data-act="closerun" aria-label="Ablauf schließen"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+  <div class="run-main">
+    <div class="ring">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><circle class="bgc" cx="100" cy="100" r="90" stroke-width="12"/><circle class="arc" id="arc" cx="100" cy="100" r="90" stroke-width="12" stroke-dasharray="565.49" stroke-dashoffset="0"/></svg>
+      <div class="clock"><b id="clock">0:00</b><span id="clock-l">Minuten</span></div>
+    </div>
+    <div class="run-txt" id="run-body"></div>
+  </div>
+  <div class="run-foot">
+    <div class="strip" id="run-strip"></div>
+    <div class="ctrl">
+      <button class="btn" id="b-prev" data-act="prev">Zurück</button>
+      <button class="btn pri play" id="b-play" data-act="play">Start</button>
+      <button class="btn" id="b-next" data-act="next">Weiter</button>
+      <span class="br"></span>
+      <button class="btn tone" data-act="tone">Ton a</button>
+      <label><input type="checkbox" id="run-auto"> automatisch weiter</label>
+      <label><input type="checkbox" id="run-sound" checked> Signal</label>
+    </div>
+    <div class="rest" id="run-rest"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="panel" id="panel" role="dialog" aria-modal="true"></div></div>
+
+<script>
+{
+const OFFLINE=true;
+const PH=["Körper","Atem","Sanfter Einsatz","Resonanz, Vokale","Umfang, Register","Beweglichkeit, Artikulation","Gehör, Intonation","Cool-down","Pop, Musical"];
+const LET="KASRUBGCP";
+const KINDS={ex:"Übung",kanon:"Kanon",zb:"Zungenbrecher"};
+const A=(m,l,q,k,body,lyr)=>["X:1","M:"+m,"L:"+l,"Q:"+q,"K:"+k,body].concat((lyr||[]).map(x=>"w: "+x)).join("\n");
+
+/* nr, phase, name, fuer, min, anleitung, ziel, lage, variante, quelle */
+const RAW=[
+["K01",1,"Strecken und Gähnen","Beide",1,"Arme weit nach oben strecken, dabei genussvoll gähnen, dann alles locker fallen lassen.","Wirbelsäule und Rachen weiten, Spannung lösen.","ohne Ton","Gähnen mit einem leisen Seufzer von oben nach unten verbinden.","HSLU, Variante: EW"],
+["K02",1,"Ausschütteln","Beide",1,"Arme, Beine und Schultern ausschütteln. Kopf, Schultern und Kiefer dabei hängen lassen.","Ganzen Körper lockern.","ohne Ton","Zählspiel: rechter Arm, linker Arm, rechtes Bein, linkes Bein je 8 Mal schütteln, dann 4, 2 und 1 Mal.","HSLU, Variante: EW"],
+["K03",1,"Marionette","Beide",2,"Aus dem gestreckten Stand nacheinander Finger, Handgelenke, Ellbogen, Schultergürtel und Oberkörper fallen lassen. Dann mit dem Atem Wirbel für Wirbel aufrichten, den Kopf zuletzt.","Aufrichtung ohne hochgezogene Schultern.","ohne Ton","Beim Aufrichten auf f ausatmen.","HSLU, Variante: EW"],
+["K04",1,"Schultern, Nacken, Kiefer lösen","Beide",1,"Schultern langsam kreisen, Nacken sanft zur Seite dehnen, Kiefergelenk mit den Fingerspitzen massieren, Unterkiefer locker hängen lassen.","Spannung in Kiefer, Nacken und Schultern lösen.","ohne Ton","In stressigen Probenphasen: Schultermassage in der Reihe.","ALF, NATS, Variante: EW"],
+["K05",1,"Haltungs-Check","Beide",0.5,"Füße hüftbreit, Knie locker, Brustbein leicht gehoben, Kopf ausbalanciert. Vorstellen, am Hinterkopf nach oben gezogen zu werden.","Aufgerichtete Singhaltung.","ohne Ton","Im Sitzen wiederholen, wenn im Sitzen geprobt wird.","ALF, HSLU, Variante: EW"],
+["A01",2,"Flankenatmung spüren","Beide",1,"Hände an die unteren Rippen, die Flanken oder den Rücken legen. Langsam einatmen und die Weitung seitlich und nach hinten spüren. Die Schultern bleiben unten.","Tiefe, gelöste Atmung ohne Hochatmung.","ohne Ton","Als Partnerübung: Hände der anderen Person am Rücken, gegen den leichten Widerstand atmen.","ALF, HSLU, NATS"],
+["A02",2,"Zischen auf s","Beide",1,"Über 4 Zählzeiten einatmen, dann gleichmäßig auf s ausatmen: erst 8, dann 12, dann 16 Zählzeiten. Bild: Fahrradschlauch mit winzigem Loch.","Atemökonomie für lange Phrasen.","ohne Ton","Statt zischen laut zählen und dabei die Sprechtonhöhe ändern. Zählzeiten an die längste Phrase im Stück anpassen.","ALF, HSLU, NATS"],
+["A03",2,"Zwerchfellimpulse","Beide",1,"Kurze, kräftige Impulse auf p, t, k, f, s, sch. Der Impuls kommt aus der Körpermitte, nicht aus Kehle oder Zunge. Wenig Luft verlieren, zwischendurch lösen.","Atem aktivieren, Atem und Artikulation verbinden.","ohne Ton","Lokomotive: fff, sss, sch im Wechsel und dabei das Zwerchfell beobachten. Einen Rhythmus aus dem aktuellen Stück auf sch oder t sprechen.","HSLU, ALF, NATS, DLI"],
+["A04",2,"Staunatmung","Beide",0.5,"Sich ein freudiges Staunen vorstellen und dabei schnell, lautlos und tief einatmen.","Schnelles Nachatmen zwischen Phrasen.","ohne Ton","Im Wechsel mit A02: schnell einatmen, lang ausatmen.","HSLU, Variante: EW"],
+["S01",3,"Summen auf m, n, ng","Beide",1,"In bequemer Mittellage leise summen, erst ohne feste Tonhöhe. Die Vibration spüren: m an den Lippen, n an Nase und Stirn, ng im hinteren Kopf.","Resonanz finden bei geringer Belastung.","Mittellage","Fünftonfolge abwärts auf m, halbtonweise verschieben.","HSLU, ALF, MAX"],
+["S02",3,"Lippenflattern","Beide",1,"Lippen locker flattern lassen, erst ohne, dann mit Stimme. Auf Glissando, Dreiklang oder einer bekannten Melodie.","Gleichmäßiger Luftstrom, Entlastung der Stimmlippen.","Mittellage, dann erweitern","Als Sirene über den ganzen Umfang. Flattern die Lippen nicht: Zeigefinger leicht an die Wangen neben den Mundwinkeln legen.","HSLU, ALF, TIT01, NATS, Melodie und Tipp: EW"],
+["S03",3,"Zungen-R","Beide",1,"R mit der Zungenspitze rollen, erst ohne, dann mit Stimme. Auf Glissando oder Dreiklang.","Lockere Zunge, gleichmäßiger Luftstrom.","Mittellage","Zungenspitzen-R und Rachen-R im Wechsel erspüren.","HSLU, TIT01"],
+["S04",3,"Strohhalm-Phonation","Beide",2,"Durch einen Trinkhalm auf u tönen: gehaltene Töne, Glissandi, ein bekanntes Lied. Keine Luft neben dem Halm oder durch die Nase entweichen lassen.","Entlastung der Stimmlippen, leichte Tongebung. In Stimmtherapie und Gesangsunterricht gut untersucht.","ganzer Umfang, leise","Dünnerer Halm erhöht den Widerstand. Halm in einem Glas Wasser erhöht ihn weiter: blubbern und dabei tönen. Im Chor Halme austeilen.","MAX, HIJ, HEL, TIT01, TIT10, CUH, POR"],
+["S05",3,"Sirene","Beide",1,"Auf u, ng oder Lippenflattern vom tiefen zum hohen Ton gleiten und zurück, ohne Druck.","Umfang dehnen, Registerübergänge glätten.","ganzer Umfang","Erst nur abwärts gleiten, dann auf und ab. Später über zwei Oktaven.","ALF, TIT01"],
+["S06",3,"Gleiten auf w und stimmhaftem s","Beide",0.5,"Auf w oder auf stimmhaftem s wie in Sonne hoch und runter gleiten.","Halbverschluss mit Konsonanten, Atem und Ton verbinden.","Mittellage","Am Ende in den Vokal u öffnen.","HSLU, MAX, Variante: EW"],
+["R01",4,"Fünftonfolge abwärts auf nu, ni, na","Beide",1,"so fa mi re do auf nu, dann ni, dann na. Halbtonweise verschieben.","Vordersitz über den Anfangskonsonanten, Vokalarbeit.","Mittellage, halbtonweise höher","Mit m statt n beginnen: mu, mi, ma.","ALF, Variante: EW"],
+["R02",4,"Vokalreihe auf einem Ton","Beide",1,"i, e, a, o, u auf einem Ton oder einem einfachen Muster. Den Raum im Mund möglichst gleich lassen, die Vokale angleichen, das helle i führt.","Vokalausgleich, im Chor ein einheitlicher Klang.","Mittellage","Den Problemvokal aus dem aktuellen Stück gezielt einbauen.","ALF, HSLU, NATS"],
+["R03",4,"Klinger in den Vokal öffnen","Beide",1,"Auf m oder n summen und auf demselben Ton in einen Vokal öffnen, z. B. m in a, n in o.","Resonanz aus dem Summen in den Vokal mitnehmen.","Mittellage","Auf Dreiklang oder Fünftonfolge, alle Vokale durchgehen.","HSLU, Ausführung: EW"],
+["R04",4,"Messa di voce","Beide",1.5,"Einen Ton leise beginnen, zum Forte anschwellen und wieder ins Piano zurück. Erst mit Halbverschluss wie Summen oder Strohhalm, dann auf geschlossenen Vokalen wie i und u, dann auf offenen wie a.","Atem und Stimmlippenschluss koordinieren, Dynamik kontrollieren.","Mittellage, dann höher","Ton länger halten, Tonhöhe halbtonweise steigern. Vor allem im Solo-Training.","TIT01, TIT96"],
+["R05",4,"Vokalwechsel auf Silben","Beide",1,"ma, me, mi, mo, mu auf dem Dreiklang, ohne den Klangraum zu verändern.","Vokalwechsel und Vokalverbindungen ausgleichen.","Mittellage","Konsonant tauschen: la, le, li, lo, lu oder na, ne, ni, no, nu.","HSLU, Silben: EW"],
+["U01",5,"Dreiklang auf und ab auf ja","Beide",1,"do mi so do und zurück auf ja, halbtonweise höher. Offene, gelöste Vokale, kurz halten.","Zugang zur Höhe.","Mittellage bis Höhe","Auf jo oder ju, mit Fermate auf dem höchsten Ton.","ALF, Variante: EW"],
+["U02",5,"Oktavgleiter","Beide",1,"Eine Oktave aufwärts gleiten und über die Tonleiter zurück.","Höhe erschließen, Register verbinden.","Mittellage bis Höhe","Auf u beginnen, dann a. Später den Oktavsprung ohne Gleiten.","ALF, Variante: EW"],
+["U03",5,"Abwärts aus der Kopfstimme","Beide",1,"Fünftonfolge oder Glissando von oben nach unten auf u oder o, leicht und leise beginnen.","Lagenausgleich, Kopfstimme in die Mittellage mitnehmen.","Höhe bis Tiefe","Startton halbtonweise höher legen.","HSLU, TIT01, NATS"],
+["U04",5,"Umfang stufenweise ausloten","Solo",1,"Ein bekanntes Muster halbtonweise in die Tiefe und in die Höhe verschieben, nur so weit es locker bleibt.","Tiefe und Höhe schrittweise erweitern.","ganzer Umfang","Höchsten und tiefsten lockeren Ton in den eigenen Notizen festhalten und beobachten.","HSLU, NATS, Variante: EW"],
+["B01",6,"Staccato-Dreiklang auf ha","Beide",0.5,"do mi so mi do staccato auf ha, jeder Ton mit leichtem Impuls aus der Körpermitte.","Beweglichkeit, klarer Einsatz, leichte Kopfstimme.","Mittellage","Auf hi oder ho, Tempo steigern, über die Oktave erweitern wie in der zweiten Notenzeile.","ALF, TIT01, NATS"],
+["B02",6,"Tonleiter über die None","Beide",1,"Neun Töne aufwärts und zurück auf a, Tempo nach und nach steigern.","Geläufigkeit, Koloratur.","Mittellage","Auf da oder la, Akzent auf jeden dritten Ton.","HSLU, NATS, Muster: EW"],
+["B03",6,"Zungenbrecher auf Tonleiter","Beide",1,"Fischers Fritz fischt frische Fische erst auf einem Ton, dann auf der Tonleiter auf und ab singen, Tempo steigern.","Deutliche Aussprache, lockere Zunge und Lippen.","Mittellage","Weitere Zungenbrecher im Tab Kanons und Zungenbrecher.","ALF, HSLU"],
+["B04",6,"Konsonanten im Rhythmus","Beide",0.5,"b, d, g und p, t, k im Rhythmus sprechen, z. B. als Achtelketten. Lippen, Zunge und Kiefer bleiben locker.","Beweglichkeit von Zunge, Lippen und Kiefer, Textverständlichkeit.","ohne Ton","Als Echo: Chorleitung gibt einen Rhythmus vor, der Chor antwortet.","HSLU, Ausführung: EW"],
+["B05",6,"Zunge strecken und kreisen","Beide",0.5,"Zunge weit herausstrecken, nach vorn rollen und im Mund kreisen lassen. Danach eine Vokalreihe mit lockerem Kiefer singen.","Zungenwurzel lösen, freier Vokalraum.","ohne Ton, dann Mittellage","Daumen unter das Kinn legen und prüfen, ob die Schluckmuskulatur locker bleibt.","TIT01, NATS"],
+["B06",6,"Schwierigen Rhythmus sprechen","Chor",0.5,"Einen schwierigen Rhythmus aus dem aktuellen Stück auf Silben oder auf dem Text sprechen.","Rhythmus und Aussprache vorbereiten.","ohne Ton","In die nächstkleinere Einheit zerlegen, langsam beginnen, dann Tempo steigern.","ALF, CVJM"],
+["G01",7,"Unisono stimmen","Chor",0.5,"Alle singen einen Ton auf einem Vokal und hören, bis er einrastet.","Gemeinsame Intonation.","Mittellage","Mit geschlossenen Augen, dann sehr leise.","ALF, Variante: EW"],
+["G02",7,"Akkord aufbauen","Chor",1,"Vom Unisono aus in einen Dreiklang auffächern. Die Stimmen setzen nacheinander ein und halten, bis der Akkord einrastet.","Stimmung, Hören im Ensemble.","Mittellage","Dur und Moll im Wechsel, Akkord halbtonweise rücken. Erweitert bis zum Septnonakkord: Grundton am stärksten, dann Quinte, Terz, Septime, None.","ALF, LANA, WU"],
+["G03",7,"Kanon","Chor",1.5,"Einen einfachen Kanon singen, erst einstimmig, dann im Kanon. Kanons mit Noten und Kanon-Wiedergabe stehen im Tab Kanons und Zungenbrecher.","Stimmen unabhängig führen, aufeinander hören, Mischklang und Balance.","Mittellage","Mit wechselnden Silben, Dynamik oder Tempo.","ALF, ALF5"],
+["G04",7,"Intervall aus dem Stück vorbereiten","Beide",0.5,"Ein schwieriges Intervall oder einen Oktavsprung aus dem Stück als Solmisationsmuster singen.","Treffsicherheit im Repertoire.","je nach Stück","Das Intervall in andere Tonarten verschieben.","ALF, Variante: EW"],
+["C01",8,"Halbverschluss abwärts","Beide",2,"Lippenflattern oder Strohhalm, leise Glissandi von oben nach unten.","Stimme nach der Belastung entspannen.","von der Mittellage abwärts","Dieselbe Halbverschluss-Übung wie beim Einsingen nutzen.","OEZ, MAN"],
+["C02",8,"Seufzer in die Sprechlage","Beide",1,"Leicht von mittlerer Höhe in die eigene Sprechstimmlage seufzen.","Rückkehr zur Sprechstimme.","Sprechlage","Auf ja oder na, dabei immer leiser werden.","OEZ, Ausführung: EW"],
+["C03",8,"Summen in der Sprechlage","Beide",1,"Leise auf m in der eigenen Sprechtonhöhe summen und in kurze Wörter übergehen: mm ja, mm nein, mm gut.","Stimme auf das Sprechen einstellen.","Sprechlage","Mit kurzen Sätzen weiterführen.","OEZ, Ausführung: EW"],
+["C04",8,"Körper lösen","Beide",1,"Langsam dehnen, Schultern und Nacken lockern, ruhig ausatmen.","Muskeltonus senken, zur Ruhe kommen.","ohne Ton","Mit K01 und K04 kombinieren.","OEZ"],
+["P01",9,"Twang auf nya","Beide",1,"Wie ein freches Kind nya nya nya sprechen, erst in normaler Sprechlautstärke. Dann auf der Fünftonfolge abwärts singen: hell, schmal, eher leise. Twang bewusst an und aus schalten.","Heller, tragender Klang ohne mehr Druck, Basis für Pop, Musical und Belt.","Mittellage","Auf wah quengeln wie ein Kind, oder ä a ä a mit breiter Mundstellung und gerolltem R davor. Danach kurze Liedphrasen mit und ohne Twang singen.","FHFT, ENS, NATS, E9"],
+["P02",9,"Sprechen, dann singen","Beide",1,"Kurze Sätze in verschiedenen Tonhöhen und Lautstärken sprechen, dann auf Grundton, Quinte, Grundton singen. Die Sprache führt, mf bis p. Über etwa a' leiser werden, notfalls in die Kopfstimme.","Sprechnahe Mischstimme, Text klar wie im Musical.","ab c', halbtonweise höher","Einen Satz aus dem aktuellen Song nehmen. Zum Schluss die Fünftonfolge abwärts singen.","NATS, Satzbeispiele: EW"],
+["P03",9,"Taxi-Ruf","Beide",0.5,"Taxi rufen wie auf der Straße, hell und nach vorne, aber ohne zu schreien: erste Silbe auf e', zweite eine Quinte tiefer. Halbtonweise höher, dann wieder abwärts.","Helle, sprechnahe Platzierung für Belt und Mix.","e' und a, halbtonweise","Mit hey oder yeah statt Taxi. Der Hals darf dabei nie wehtun.","NATS, Variante: EW"],
+["P04",9,"Fünftonfolge auf nah nee","Beide",1,"Fünftonfolge auf und ab auf nah nee, hell und nach vorne, kräftig, aber ohne Druck. Unter dem c' beginnen und halbtonweise höher.","Heller, vorderer Klang als Vorbereitung für die Mischstimme.","ab a, halbtonweise","Danach dieselbe Folge auf nya mit Twang wie in P01.","NATS"],
+["P05",9,"Pentatonik-Riff","Beide",1,"Dur-Pentatonik mit den Stufen 1, 2, 3, 5, 6. Muster 3 2 1 2 3 erst staccato, dann legato, danach der Lauf 6 5 3 2 1. Langsam beginnen, erst dann Tempo.","Beweglichkeit für Riffs und Runs in Pop, Gospel und R&B.","Mittellage","Moll-Pentatonik. Call and Response: eine Person singt ein Riff vor, der Chor antwortet.","30DS, Call and Response: EW"],
+["P06",9,"Vocal Percussion: Boots and Cats","Chor",1,"Grundsounds lernen: Bass Drum auf b oder doo, Hi-Hat auf t oder ts, Snare auf k oder pf. Dann boots and cats im Wechsel sprechen, bis es nach Schlagzeug klingt. Langsam beginnen.","Rhythmusgefühl, Groove im Chor, saubere Konsonanten.","ohne Ton","Gruppen teilen in Bass Drum, Snare und Hi-Hat. Wasser bereithalten, nicht übertreiben.","UBC, GLO"],
+["P07",9,"Body-Clapping 4 gegen 5","Chor",1,"Im 4/4: auf 1 klatschen, auf 2 Schultern, auf 3 Oberschenkel, auf 4 rechts stampfen. Im 5/4: bis 3 gleich, auf 4 Gesäß, auf 5 stampfen. Sitzen beide Muster, macht eine Gruppe 4, die andere 5.","Puls halten, Koordination, Konzentration.","ohne Ton","Tempo wechseln, dazu einen Kanon singen.","CVJM"],
+["P08",9,"Pausenübung","Chor",1,"Vier Gruppen, jede bekommt eine Zählzeit im 4/4 und sagt sie laut. Die Leitung ruft z. B. ohne 2: diese Gruppe schweigt, alle anderen zählen weiter. Steigern mit mit 2, ohne 4 und Tempowechsel.","Inneres Timing, Pausen spüren.","ohne Ton","Statt Zahlen die Sounds aus P06 verwenden.","CVJM, Variante: EW"],
+["P09",9,"Einsätze unterscheiden","Beide",0.5,"Drei Arten von Einsätzen kennenlernen: hauchig auf ha ha ha, ausgeglichen, bei dem Luft und Ton zugleich kommen, und fest, nur kurz und leicht angedeutet.","Einsätze bewusst als Stilmittel wählen, Pressen vermeiden.","bequeme Mittellage","Eine Liedzeile mit allen drei Einsätzen singen und vergleichen.","NATS"],
+["P10",9,"Backbeat schnipsen","Beide",1,"Alle schnipsen oder klatschen auf 2 und 4. Dazu Bruder Jakob oder Row, row, row your boat im Swing singen.","Groove und Backbeat, der Pop- und Swingstücke trägt.","ohne Ton, dann Mittellage","Stil wechseln: Swing, Rock, Shuffle.","SHAW, Umsetzung: EW"],
+["K06",1,"Abklopfen","Beide",1,"Arme und Beine mit lockeren Händen abklopfen, zum Schluss leicht den Brustkorb mit einem wohligen Laut.","Körper aufwecken, Resonanz im Brustkorb spüren.","ohne Ton","Auch das Gesicht sanft abklopfen und dabei summen wie in S07.","LOI, E9"],
+["K07",1,"Gehen und Über-Kreuz-Bewegungen","Beide",1,"Auf der Stelle gehen, leicht hüpfen, in die Knie gehen. Dann über Kreuz: rechte Hand zum linken Knie, linke Hand zum rechten Knie, im ruhigen Tempo.","Kreislauf und Koordination wecken, beide Körperhälften verbinden.","ohne Ton","Im Raum gehen und dabei den Puls halten wie in P17.","DLI, Variante: EW"],
+["K08",1,"Kung-Fu-Countdown","Beide",1,"Zu zweit: eine Person macht große, langsame Kreisbewegungen mit Armen und Händen, die andere spiegelt sie und zählt dabei laut von hundert rückwärts. Bei einem Fehler wieder bei hundert beginnen, nach einer Weile tauschen.","Konzentration, Ankommen in der Probe, Kontakt zum Gegenüber.","ohne Ton","In Dreierschritten rückwärts zählen.","WU, Variante: EW"],
+["A05",2,"Atemrhythmus und Seufzer","Beide",1,"Ausatmen, Pause, Einatmen: den eigenen Rhythmus finden, ohne den Atem zu führen. Dann in das Ausatmen einen weichen, erlösenden Seufzer legen. Zum Schluss lang auf ff ausatmen und mit dem ausgestreckten Arm die Phrase in die Luft zeichnen.","Reflektorisches Einatmen, Ton auf dem Atem.","ohne Ton, dann Sprechlage","Die Pause nach dem Ausatmen abwarten, bis der Einatemreflex von selbst kommt.","DLI"],
+["S07",3,"Kausummen","Beide",1,"Mit lockeren Kaubewegungen summen und den Mund nur kurz für den Vokal öffnen: mamm, memm, mimm, momm, mumm. Dabei das Gesicht sanft abklopfen.","Resonanzen spüren, Kiefer lösen, weicher Einsatz.","Mittellage","Sehr leise auf m gleiten wie eine Wellenlinie.","E9"],
+["S08",3,"Randstimme auf m und mo","Beide",1,"Im Piano auf m summen und die Töne fließend, fast schmierend verbinden. Die Lippen liegen so leicht aufeinander, dass sie kribbeln. Klingt es gepresst, hilft das Bild einer heißen Kartoffel im Mund. Danach auf mo.","Leichte Randstimme, kein Druck.","um f', halbtonweise ab bis es', auf bis a'","Auf einem Atem in fließendem Tempo singen.","LOI"],
+["R06",4,"Klingende Konsonanten","Beide",1,"Auf einem Ton wa, ma, na, nga, sa, la singen und den Konsonanten bewusst klingen lassen. Danach Wörter wie Seele oder wohnen. Nicht klingende Konsonanten wie f, s, sch, p, t, k kurz halten, damit der Vokal klingt.","Klang durch die Konsonanten tragen, Textverständlichkeit.","Mittellage","Singe, Seele, Sonne, sage auf einem Ton mit klingendem s, der Ton bleibt ganz gleich.","DLI, E9"],
+["R07",4,"Stimmsitz auf blui und ui","Chor",1,"Quartsprung aufwärts ohne Akzent, dann abwärts zum Grundton mit Wechseltönen. Erst auf blui, das bl hilft gegen harte Einsätze, nach ein paar Runden nur noch auf ui. Grundgefühl: den Ton ansaugen.","Stimmsitz und Intonation, besonders vor A-cappella-Stücken.","tief und hoch führbar","Bei den letzten Wechseltönen auf Haltung und Stütze achten.","LOI, Muster: EW"],
+["U05",5,"Quintgleiter auf wohl","Beide",1,"Im Piano vom Grundton zur Quinte und zurück gleiten, ohne Druck und ohne lauter zu werden. Das l von wohl erst nach dem Schlusston mit leichtem Zungenschlag sprechen. Bild: ein Theraband dehnen. Dann um die Unterquart erweitern.","Tonraum erweitern, Randstimme bis in die Tiefe halten.","halbtonweise bis c'', mit Unterquart bis es''","Auf wohl und froh mit einem hörbaren frrr am Schluss.","LOI"],
+["U06",5,"Großer Bogen","Beide",1,"Einen weiten Bogen über eine Dezime auf einem Atem singen: auf ni hinauf, auf nja zurück.","Atemführung über einen großen Tonraum, Legato.","Mittellage bis Höhe","Den Bogen mit der Hand mitzeichnen.","DLI, Muster: EW"],
+["U07",5,"Die So, die Sonne","Beide",1,"Mit Schwung vom Auftakt in die Höhe springen und auf dem Wort leicht bleiben: die So, die So, die Sonne.","Locker in die Höhe, Sprünge vorbereiten.","Mittellage bis Höhe","Andere Wörter: Tulpe, Tanne, Seele, Tinte.","DLI, E9, Muster: EW"],
+["U08",5,"Registerwechsel hei und lu","Beide",1,"Drei kräftige, sprechnahe hei in der Bruststimme, dann leicht auf lu von oben in der Kopfstimme abwärts.","Brust- und Kopfstimme bewusst wechseln und verbinden.","Mittellage","Umgekehrt: von der Kopfstimme in die Bruststimme auf i und u.","E9, Muster: EW"],
+["U09",5,"Tiefe genießen","Beide",1,"Eine kurze Phrase abwärts singen und in Ganztonschritten tiefer transponieren. Leise bleiben und nicht auf die Stimme drücken. Am eigenen Limit aufhören und den tiefen Klang der anderen genießen.","Tiefe Lage ohne Druck, Resonanz in der Tiefe.","Mittellage bis Tiefe","Im groovigen Pop-Stil mit vielen Glissandi.","WU, E9, Muster: EW"],
+["U10",5,"Hosianna in die Höhe","Beide",1,"Auf ho-si-an-na in einem Tonraum bis zur Sexte über dem Grundton singen, bei c' beginnen und halbtonweise höher. Die ersten Silben trainieren Körperspannung und Artikulation.","Einstieg in die Höhe mit begrenztem Tonraum.","ab c', halbtonweise","Danach mit größerem Tonraum, auf le entspannt bleiben.","LOI, Muster: EW"],
+["B07",6,"Legato und Portato","Beide",1,"Die Tonleiter auf ja aufwärts gebunden singen, abwärts jeden Ton leicht abgesetzt.","Bewusster Wechsel zwischen gebunden und ungebunden.","Mittellage","Richtung tauschen: aufwärts portato, abwärts legato.","DLI, Muster: EW"],
+["B08",6,"Silbenketten für Zunge und Lippen","Beide",1,"Silbenketten wie ma la ga, bla bli blu oder da ba auf der Fünftonfolge singen, erst langsam, dann schneller. Kiefer locker, der Atem fließt.","Zungenfertigkeit, Verbindung von Sprache und Singen.","Mittellage","Eine Koloratur aus dem Stück erst auf Silben wie don do ba, dann immer mehr im Melisma üben.","E9, LOI, Muster: EW"],
+["B09",6,"Triller-Vorübung","Solo",0.5,"Zwei benachbarte Töne langsam im Wechsel singen und das Tempo nach und nach steigern, bis ein Triller entsteht.","Beweglichkeit und Leichtigkeit.","Mittellage","Auf o, dann auf a.","E9, Muster: EW"],
+["G05",7,"Ton halten, Harmonie wechselt","Chor",1,"Die Gruppe hält einen Ton oder eine kurze Linie, während die Begleitung die Akkorde wechselt. Hören, wie sich die Funktion des eigenen Tons verändert.","Intonation über wechselnde Harmonien, Stütze.","Mittellage","Auf uh gelingt es leichter als auf ah. Alle mit derselben Klangfarbe singen.","WU"],
+["G06",7,"Merk dir den Ton","Chor",1,"Alle summen unisono einen Ton. Auf Zeichen summt jede Person einen beliebigen anderen Ton, es entsteht ein Cluster. Dann treffen sich alle wieder auf dem Anfangston.","Tonvorstellung halten, Gehör schärfen.","Mittellage","Mehrere Cluster hintereinander: wie viele Wechsel gehen, bevor der Anfangston verloren geht?","GER"],
+["G07",7,"Ganztöne und Ganztoncluster","Chor",1.5,"Ganztöne langsam auf und ab singen bis zur Ganztonleiter. Dann einen Ganztoncluster wie c d e fis gis auf u aushalten, nacheinander tritt jede Stimme mit einem Crescendo hervor.","Intonation, Hören im dichten Klang.","Mittellage","Vorher Quinten, Oktaven und Quarten sauber aushalten und hören.","GER"],
+["G08",7,"Halbtonwechsel bewusst zu hoch","Chor",0.5,"Einen Halbton als Wechsel nach unten singen, etwa g fis g, mit Leittongefühl. Einmal bewusst zu klein, also zu hoch singen. Danach am Klavier kontrollieren.","Gefühl für Halbtöne, Absinken vermeiden.","Mittellage","Auf verschiedenen Tonstufen wiederholen.","GER, Muster: EW"],
+["G09",7,"Innerlich singen","Beide",1,"Einen gut bekannten Song wählen. Den ersten Ton innerlich vorstellen, bis er den ganzen Körper erfüllt. Dann die Melodie gemeinsam im Tempo nur innerlich singen und beim letzten Ton die Hand heben. Sind alle gleichzeitig fertig?","Audiation, also Denken in Klang, Tonvorstellung.","ohne Ton","Mittendrin auf Zeichen laut weitersingen und prüfen, ob alle an derselben Stelle sind.","WU, Variante: EW"],
+["P11",9,"Theater-Rufe","Beide",0.5,"Wie?! Wo?! Wer?! Was?! mit theatralischem Ausdruck rufen und singen, jedes Mal etwas höher. Zwischen den Wörtern ganz abspannen, die Kraft kommt aus dem Unterbauch.","Sprechnahe Energie für Musical, Spannung und Abspannen.","Mittellage","Den Sprung innerlich vorbereiten, als würde man den Weg schon gehen.","E9, Muster: EW"],
+["P12",9,"Synkopen","Beide",1,"Synkopische Rhythmen erst sprechen, dann auf einem Ton singen. Den Puls dabei körperlich spüren, z. B. mit Schnipsen auf 2 und 4.","Sicherheit mit Synkopen, wie sie in Pop und Musical ständig vorkommen.","ohne Ton, dann Mittellage","Einen synkopischen Rhythmus aus dem aktuellen Song so üben.","E9, Muster: EW"],
+["P13",9,"Vibrato an und aus","Beide",1,"Eine Person dirigiert und zeigt mit Handzeichen, ob ein langer Ton mit oder ohne Vibrato gesungen wird. Erst ganze Töne gerade oder mit Vibrato, dann innerhalb eines Tons wechseln.","Vibrato bewusst als Stilmittel einsetzen.","Mittellage","Nur die Schlusstöne eines Songs mit Vibrato versehen.","WU"],
+["P14",9,"Klangmodi wechseln","Beide",1,"Auf einem Ton, dann auf einer kurzen Phrase zwischen Klangfarben wechseln: leise und weich, dann gehalten mit leicht klagendem Klang, dann voll und rufend auf a. Nur kurz und ohne Druck. Die Begriffe Neutral, Curbing und Overdrive dafür stammen aus Complete Vocal Technique.","Schneller Wechsel von Klangfarbe und Lautstärke.","Mittellage","Männerstimmen können hohe Töne im Falsett singen.","WU, CVT"],
+["P15",9,"Ich mach vor, ihr macht nach","Chor",1,"Auf einem steten Puls klatscht die Leitung einen Rhythmus vor, der Chor klatscht ihn im Folgetakt nach. Danach Rhythmen aus dem anstehenden Song einbauen.","Groove, musikalisches Gedächtnis.","ohne Ton","Statt Klatschen gesungene Riffs wie in P05.","GER"],
+["P16",9,"Klatscher wandert durch den Takt","Chor",1,"Alle zählen laut im 4/4. Im ersten Takt klatscht der Chor auf die 1, im zweiten auf die 2 und so weiter. Irgendwann nicht mehr laut zählen, sondern nur noch innerlich.","Inneres Zählen, Timing.","ohne Ton","Als Kanon, auf die Offbeats oder mit einem komplexeren Motiv.","GER"],
+["P17",9,"Den Puls spüren","Chor",1,"Im moderaten Viertelpuls durch den Raum gehen und dabei abwechselnd Achtel und Sechzehntel auf t sprechen. Auf Zeichen stehen alle still und hören den Puls innerlich weiter. Nach einer vereinbarten Pause genau auf den Pulsschlag weitersingen.","Gemeinsames Timing, inneres Tempo.","ohne Ton","Die Pause verlängern.","GER"],
+["P18",9,"Eins, zwei, drei mit Ersatzklängen","Beide",1,"Zu zweit abwechselnd bis drei zählen: A eins, B zwei, A drei, B eins. Nach einer Weile die Eins durch einen Klatscher ersetzen, dann die Zwei durch einen Laut, zuletzt die Drei durch ein Wort.","Konzentration, Hirn und Körper aufwecken, Spaß.","ohne Ton","Tempo steigern.","WU, GER"]
+];
+/* Verweise auf die PDFs, Seitenzahlen wie aufgedruckt */
+const PDF={
+K01:"Loichinger S. 4: Strecken, fallen lassen, aufrichten. Gottesdienst S. 1: Recken, Strecken, Gähnen.",
+K03:"Gottesdienst S. 1: Kathedrale. Loichinger S. 4.",
+K04:"Loichinger S. 4: Schultern kreisen. Gottesdienst S. 1: Schultern und Becken kreisen.",
+K05:"Gottesdienst S. 1: stabil, aber flexibel stehen.",
+K06:"Loichinger S. 4. Einsingen um 9 S. 1: Gesicht abklopfen.",
+K07:"Gottesdienst S. 1: Bewegen, Cross-Crawl.",
+K08:"Warming Up S. 22.",
+A01:"Gottesdienst S. 1: Atemräume spüren.",
+A02:"Gottesdienst S. 1: Phrase mit dem Arm zeichnen.",
+A03:"Gottesdienst S. 2: Lokomotive und vierstößig auf ff.",
+A05:"Gottesdienst S. 1 und 2.",
+S01:"Gottesdienst S. 3, Nr. 1: Summen auf mmm, nnn, ng. Einsingen um 9 S. 1: Summen im ppp.",
+S02:"Einsingen um 9 S. 1: Lippenflattern.",
+S05:"Einsingen um 9 S. 1: u-a und ng gleiten. Gottesdienst S. 4, Nr. 9: Glissando.",
+S06:"Einsingen um 9 S. 1: w mit Akzenten, auch s, r, sch.",
+S07:"Einsingen um 9 S. 1.",
+S08:"Loichinger S. 5.",
+R01:"Einsingen um 9 S. 2: ng-a, bla, lung-go, fa, noi, lum.",
+R02:"Einsingen um 9 S. 7: Vokalausgleich geschlossen und offen.",
+R03:"Einsingen um 9 S. 7: prrrri-a, Öffnen zu Vokalen.",
+R04:"Gottesdienst S. 3, Nr. 5: Dynamik auf du-a.",
+R05:"Gottesdienst S. 2: ma me mi mo mu und Klangorte im Körper. Einsingen um 9 S. 2.",
+R06:"Gottesdienst S. 2 und S. 3, Nr. 4.",
+R07:"Loichinger S. 8.",
+U01:"Gottesdienst S. 3, Nr. 6: Locker in die Höhe.",
+U02:"Einsingen um 9 S. 4: Legatoübungen.",
+U03:"Einsingen um 9 S. 6 und 7: Register verbinden.",
+U05:"Loichinger S. 6 und 7.",
+U06:"Gottesdienst S. 3, Nr. 3: Großer Bogen.",
+U07:"Gottesdienst S. 3, Nr. 6. Einsingen um 9 S. 4.",
+U08:"Einsingen um 9 S. 6: Bruststimme, Kopfstimme.",
+U09:"Einsingen um 9 S. 7: Tiefe. Warming Up S. 88: How low can you go, In a cellar black as coal.",
+U10:"Loichinger S. 10: Hosianna.",
+B01:"Gottesdienst S. 3, Nr. 7: Akzente mit dem Zwerchfell.",
+B02:"Loichinger S. 9: Lockerung und Koloratur. Einsingen um 9 S. 5: Schnelligkeit.",
+B03:"Einsingen um 9 S. 3: Zungenfertigkeit.",
+B07:"Gottesdienst S. 4, Nr. 8.",
+B08:"Einsingen um 9 S. 3. Loichinger S. 9.",
+B09:"Einsingen um 9 S. 6: Triller.",
+G02:"Warming Up S. 164: Luna. S. 165: Auf zur None.",
+G05:"Warming Up S. 78: Jens' Treppe.",
+G06:"Gerlitz S. 62.",
+G07:"Gerlitz S. 63: Sing sauber!",
+G08:"Gerlitz S. 63.",
+G09:"Warming Up S. 163: Die denkende Stimme.",
+P01:"Einsingen um 9 S. 7: Twang mit breiter Mundstellung. S. 9: Übung für den Twang.",
+P02:"Einsingen um 9 S. 2: pa pe pi po pu fast gesprochen.",
+P05:"Gerlitz S. 62: Call and Response.",
+P11:"Einsingen um 9 S. 4.",
+P12:"Einsingen um 9 S. 6: Synkopen.",
+P13:"Warming Up S. 115: An und aus.",
+P14:"Warming Up S. 115: Modus-Hopping. S. 129: When the spotlight turns on.",
+P15:"Gerlitz S. 62.",
+P16:"Gerlitz S. 62: 1-2-3-4.",
+P17:"Gerlitz S. 63.",
+P18:"Warming Up S. 22. Gerlitz S. 63: Train your brain.",
+ZB10:"Gottesdienst S. 4: acht Spaß-Übungen."
+};
+
+const NOTES={
+S01:[["Muster",A("4/4","1/4","1/4=80","C","G F E D | C4 |]",["mm mm mm mm mm"])]],
+S02:[["Muster auf brr",A("4/4","1/8","1/4=80","C","\"^brr\"C2 E2 G2 c2 | G2 E2 C4 |]")],["Melodie: Alle meine Entchen, auf brr",A("4/4","1/4","1/4=100","C","C D E F | G2 G2 | A A A A | G4 | A A A A | G4 | F F F F | E2 E2 | D D D D | C4 |]",["Al-le mei-ne Ent-chen schwim-men auf dem See, schwim-men auf dem See, Köpf-chen in das Was-ser, Schwänz-chen in die Höh."])]],
+S03:[["Muster",A("4/4","1/4","1/4=80","C","C E G E | C4 |]",["rrr rrr rrr rrr rrr"])]],
+S04:[["Muster durch den Halm",A("4/4","1/4","1/4=72","C","\"^u durch den Halm\"C2 G2 | c2 G2 | C4 |]")],["Melodie: Happy Birthday, auf u durch den Halm",A("3/4","1/8","1/4=100","F","C>C | D2 C2 F2 | E4 C>C | D2 C2 G2 | F4 C>C | c2 A2 F2 | E2 D2 B>B | A2 F2 G2 | F4 |]")]],
+S05:[["Muster",A("4/4","1/4","1/4=60","C","\"^gleiten\"C4 | c4 | C4 |]",["u u u"])]],
+S06:[["Muster",A("4/4","1/4","1/4=80","C","C D E D | C2 \"^in u öffnen\"C2 |]",["www www www www www u"])]],
+R01:[["Muster",A("4/4","1/4","1/4=88","C","G F E D | C4 |]",["nu nu nu nu nu","ni ni ni ni ni","na na na na na"])]],
+R02:[["Muster",A("4/4","1/4","1/4=72","C","E2 E2 | E2 E2 | E4 |]",["i e a o u"])]],
+R03:[["Muster",A("4/4","1/4","1/4=72","C","D4 | D4 | G4 | G4 |]",["mm a nn o"])]],
+R04:[["Muster",A("4/4","1/4","1/4=60","C","!pp!!crescendo(!E4- | !crescendo)!!f!E4- | !diminuendo(!E4- | !diminuendo)!!pp!E4 |]",["u _ _ _"])]],
+R05:[["Muster",A("4/4","1/4","1/4=88","C","C E G E | C4 |]",["ma me mi mo mu"])]],
+U01:[["Muster",A("4/4","1/4","1/4=92","C","C E G c | G E C2 |]",["ja ja ja ja ja ja ja"])]],
+U02:[["Muster",A("4/4","1/8","1/4=72","C","\"^gleiten, auf u\"C4 c4 | c B A G F E D C |]")]],
+U03:[["Muster",A("4/4","1/4","1/4=80","C","g f e d | c4 |]",["u u u u u"])]],
+U04:[["Muster",A("4/4","1/8","1/4=80","C","C E G c G E C2 |]",["a a a a a a a"])]],
+B01:[["Muster",A("4/4","1/8","1/4=100","C",".C z .E z .G z .E z | .C2 z2 z4 |]",["ha ha ha ha ha"])],["Variante Kopfstimme, leicht",A("4/4","1/8","1/4=100","C",".C .E .G .c .c .c .c .G | .E .C z2 z4 |]",["ah ah ah ah ah ah ah ah ah ah"])]],
+B02:[["Muster",A("4/4","1/8","1/4=96","C","\"^auf a\"CDEF GABc | dcBA GFED | C2 z2 z4 |]")]],
+B03:[["Muster",A("4/4","1/8","1/4=96","C","CDEF GABc | cBAG FEDC |]",["Fi-schers Fritz fischt fri-sche Fi-sche, fri-sche Fi-sche fischt Fi-schers Fritz."])]],
+B04:[["Muster, gesprochen",A("4/4","1/8","1/4=96","C","G G G G G G G G | G2 G2 G4 |]",["b d g b d g b d p t k"])]],
+G01:[["Muster",A("4/4","1/4","1/4=60","C","E4- | E4 |]",["u _"])]],
+G02:[["Muster",A("4/4","1/4","1/4=60","C","C4 | [CE]4 | [CEG]4 | [CEGc]4 |]",["u u u u"])]],
+G04:[["Beispiel Oktavsprung",A("4/4","1/4","1/4=72","C","C2 c2 | G E C2 |]",["do do so mi do"])]],
+C01:[["Muster",A("4/4","1/4","1/4=60","C","\"^gleiten, leise\"G4 | C4 |]",["brr _"])]],
+C02:[["Muster",A("4/4","1/4","1/4=60","C","\"^seufzen\"(G2 C2) | (F2 C2) | (E2 C2) |]",["ja _ na _ ja _"])]],
+C03:[["Muster",A("4/4","1/4","1/4=72","C","C2 C2 | C2 C2 | C4 |]",["mm ja mm nein mm"])]],
+P01:[["Muster",A("4/4","1/4","1/4=96","C","G F E D | C4 |]",["nya nya nya nya nya","wah wah wah wah wah"])]],
+P02:[["Muster: erst sprechen, dann singen",A("4/4","1/4","1/4=80","C","C2 G2 | C4 |]",["Komm schon, los!","Hey, wie geht's?"])]],
+P03:[["Muster",A("4/4","1/4","1/4=96","C","E2 A,2 | z4 |]",["Ta-xi!"])]],
+P04:[["Muster",A("4/4","1/8","1/4=96","C","A,B,CD EDCB, | A,4 z4 |]",["nah nee nah nee nah nee nah nee nah"])]],
+P05:[["Muster",A("4/4","1/8","1/4=72","C","\"^auf ah, erst staccato, dann legato\"E D C D E2 z2 | A G E D C4 |]")]],
+P06:[["Rhythmus",A("4/4","1/8","1/4=90","C clef=perc","F g c g F g c g | F g c g F F c2 |]",["b ts k ts b ts k ts b ts k ts b b k"]),1]],
+P09:[["Muster",A("4/4","1/4","1/4=80","C","\"^hauchig\".E .E .E z | \"^ausgeglichen\"E4 | \"^fest, nur kurz\"E4 |]",["ha ha ha a a"])]],
+P10:[["Backbeat",A("4/4","1/4","1/4=100","C clef=perc","z c z c | z c z c |]",["schnipp schnipp schnipp schnipp"]),1]],
+S07:[["Muster",A("4/4","1/4","1/4=72","C","E4 | E4 | E4 | E4 | E4 |]",["mamm memm mimm momm mumm"])]],
+S08:[["Muster",A("4/4","1/4","1/4=66","C","!p!(F2 G2 | F2 E2 | F4) |]",["m _ _ _ _","mo _ _ _ _"])]],
+R06:[["Muster",A("4/4","1/4","1/4=80","C","E E E E | E E2 z |]",["wa ma na nga sa la"])]],
+R07:[["Muster",A("4/4","1/4","1/4=76","C","G, C E G | F D C2 |]",["blui ui ui ui ui ui ui","ui ui ui ui ui ui ui"])]],
+U05:[["Muster",A("4/4","1/4","1/4=60","C","!p!\"^gleiten\"C2 G2 | C4 |]",["woh _ _"])],["Mit Unterquart",A("4/4","1/4","1/4=60","C","!p!\"^gleiten\"C2 G2 | C2 G,2 | C4 |]",["woh _ _ _ _"])]],
+U06:[["Muster",A("4/4","1/8","1/4=80","C","C2 E2 G2 c2 | e2 d2 B2 G2 | E2 D2 C4 |]",["ni _ _ _ nja _ _ _ _ _ _"])]],
+U07:[["Muster",A("6/8","1/8","3/8=60","C","G | c2 G c2 G | e2 c G E C |]",["Die So, die So, die Son _ _ _ ne","Die Tul, die Tul, die Tul _ _ _ pe"])]],
+U08:[["Muster",A("4/4","1/4","1/4=88","C","C C C z | c B A G | F E D C |]",["hei hei hei lu lu lu lu lu lu lu lu"])]],
+U09:[["Muster, in Ganztönen tiefer",A("4/4","1/4","1/4=72","C","E D C A, | G,4 |]",["wo wo wo wo wo"])]],
+U10:[["Muster",A("4/4","1/8","1/4=96","C","C E G A G2 E C | C4 z4 |]",["ho si an na ho si an na"])]],
+B07:[["Muster auf ja",A("4/4","1/8","1/4=84","C","\"^legato\"(CDEF GABc) | \"^portato, leicht abgesetzt\"cBAG FEDC |]")]],
+B08:[["Muster",A("4/4","1/8","1/4=88","C","C D E F G F E D | C2 z2 z4 |]",["ma la ga ma la ga ma la ga","bla bli blu bla bli blu bla bli blu","da ba da ba da ba da ba da"])]],
+B09:[["Muster",A("4/4","1/8","1/4=60","C","\"^langsam, dann schneller\"(3EFE (3FEF (3EFE (3FEF | E4 z4 |]",["o"])]],
+G07:[["Ganztonleiter",A("4/4","1/4","1/4=72","C","C D E ^F | ^G ^A c2 | ^A ^G ^F E | D C2 z |]",["u"])],["Ganztoncluster",A("4/4","1/4","1/4=56","C","[CE^G]4- | [CDE^F^G]4 |]",["u _"])]],
+G08:[["Muster",A("4/4","1/4","1/4=72","C","G ^F G2 | \"^bewusst etwas zu hoch\"G ^F G2 |]",["u u u u u u"])]],
+P11:[["Muster",A("4/4","1/8","1/4=88","C","C2 z2 E2 z2 | G2 z2 c2 z2 |]",["Wie?! Wo?! Wer?! Was?!"])]],
+P12:[["Muster",A("4/4","1/8","1/4=96","C","C3 C z C C2 | z C2 C z C C2 |]",["dum ba ba dum ba dum ba dum"])]],
+P13:[["Muster",A("4/4","1/4","1/4=60","C","\"^gerade\"E4- | \"^mit Vibrato\"E4 |]",["a _"])]],
+P16:[["Rhythmus",A("4/4","1/4","1/4=96","C clef=perc","c z z z | z c z z | z z c z | z z z c |]",["klatsch klatsch klatsch klatsch"]),1]]
+};
+
+/* nr, kind, phase, name, fuer, min, text, anleitung, ziel, lage, variante, quelle, sprache, kanon */
+const KZ=[
+["KA01","kanon",7,"Bruder Jakob, Are you sleeping","Chor",1.5,"","Einstimmig lernen, dann in bis zu vier Gruppen. Die nächste Gruppe setzt ein, wenn die vorige Takt 3 erreicht.","Mehrstimmigkeit, Hören im Ensemble, Mischklang.","c' bis d''","Pop-Version: im Swing mit Schnipsen auf 2 und 4 wie in P10. Deutsch und Englisch gleichzeitig singen.","Melodie trad., gemeinfrei, ALF5, Pop-Tipp: EW","DE, EN",{v:4,e:8},[["Kanon für 4 Gruppen",A("4/4","1/4","1/4=100","F","F G A F | F G A F | A B c2 | A B c2 | c/d/c/B/ A F | c/d/c/B/ A F | F C F2 | F C F2 |]",["Bru-der Ja-kob, Bru-der Ja-kob, schläfst du noch? schläfst du noch? Hörst du nicht die Glo-cken? Hörst du nicht die Glo-cken? Ding, dang, dong. Ding, dang, dong.","Are you sleep-ing, are you sleep-ing, Bro-ther John? Bro-ther John? Morn-ing bells are ring-ing, morn-ing bells are ring-ing, ding, dang, dong. Ding, dang, dong."])]]],
+["KA02","kanon",7,"Row, row, row your boat","Chor",1.5,"","Im 6/8 locker schwingen. Einsatz alle zwei Takte, bis zu vier Gruppen.","Mehrstimmigkeit, Rhythmus im Dreier, englische Aussprache.","c' bis c''","Musical-Version: jede Gruppe spielt eine Figur, z. B. müde, aufgeregt oder verliebt.","trad., 19. Jh., gemeinfrei, Datierung und Tipp: EW","EN",{v:4,e:6},[["Kanon für 4 Gruppen",A("6/8","1/8","3/8=66","C","C3 C3 | C2 D E3 | E2 D E2 F | G6 | c c c G G G | E E E C C C | G2 F E2 D | C6 |]",["Row, row, row your boat gent-ly down the stream. Mer-ri-ly, mer-ri-ly, mer-ri-ly, mer-ri-ly, life is but a dream."])]]],
+["KA03","kanon",7,"Tonleiter-Kanon","Beide",1,"","Die Dur-Tonleiter auf und ab auf Solmisation oder u. Die zweite Gruppe setzt nach zwei Tönen ein, die dritte nach weiteren zwei.","Einfachster Weg zu Terzen, Mischklang und Balance.","c' bis c''","Einsatz nach drei Tönen probieren, dann halbtonweise höher.","ALF5, Muster: EW","alle",{v:3,e:2},[["Kanon für 3 Gruppen",A("4/4","1/4","1/4=80","C","C D E F | G A B c | B A G F | E D C2 |]",["do re mi fa so la ti do ti la so fa mi re do"])]]],
+["ZB01","zb",6,"Unique New York","Beide",0.5,"You know you need unique New York.","Erst sprechen, dann auf einem Ton singen, bei c' beginnen und halbtonweise höher. Wird es sicher, Tempo steigern.","Lippen, Zunge und Kiefer wach, klare Konsonanten auf Englisch.","ein Ton, halbtonweise","Als Ostinato unter einen Kanon legen.","NSW, CAR","EN",null,[["Muster",A("4/4","1/8","1/4=96","C","CCCC C/C/C C2 |]",["You know you need u-nique New York."])]]],
+["ZB02","zb",6,"Irish Wristwatch","Beide",0.5,"I wish to wash my Irish wristwatch.","Auf der Tonleiter auf und ab singen, dann schneller.","Zungenspitze und Lippen trennen sch, s und w sauber.","Mittellage","Halbtonweise höher, am Ende im halben Tempo ganz deutlich.","NSW, Muster: EW","EN",null,[["Muster",A("4/4","1/8","1/4=96","C","C D E F G F E D | C2 z2 z4 |]",["I wish to wash my I-rish wrist-watch."])]]],
+["ZB03","zb",6,"Washington's Washerwoman","Beide",1,"Who washed Washington's white warm woolens when Washington's washerwoman went west?","Auf einem Ton im angegebenen Rhythmus singen, bei jeder Wiederholung einen Halbton oder einen Ton höher.","Rhythmische Präzision, w und sch klar getrennt.","ein Ton, halbtonweise","Gruppen setzen versetzt ein wie ein Sprechkanon.","MK8, Variante: EW","EN",null,[["Muster",A("4/4","1/16","1/4=84","C","C2C2 CCC2 C2C2 CCC2 | CCC2 CCCC z2 C2 C4 |]",["Who washed Wash-ing-ton's white warm wool-ens when Wash-ing-ton's wash-er-wo-man went west?"])]]],
+["ZB04","zb",6,"Many mumbling mice","Beide",0.5,"Many mumbling mice are making midnight music in the moonlight, mighty nice.","Dreiklang hinauf und über die Dominante zurück, locker und zügig.","Lippenarbeit auf m, Legato trotz vieler Konsonanten.","Mittellage","Halbtonweise höher, zuletzt nur summen.","MK8, Muster: EW","EN",null,[["Muster",A("4/4","1/8","1/4=100","C","C C E E G G c c | B B G G F F D D | D B, C2 z4 |]",["Ma-ny mum-bling mice are ma-king mid-night mu-sic in the moon-light, migh-ty nice."])]]],
+["ZB05","zb",6,"The tip of the tongue","Beide",0.5,"The tip of the tongue, the teeth, the lips.","Leicht und staccato die Tonleiter abwärts singen.","Aktivierung von Zungenspitze, Zähnen und Lippen.","Mittellage","Mit Unique New York im Wechsel singen.","SAL, Muster: EW","EN",null,[["Muster",A("4/4","1/8","1/4=100","C",".c.B.A.G .F.E.D.C | .C2 z2 z4 |]",["The tip of the tongue, the teeth, the lips."])]]],
+["ZB06","zb",6,"Blaukraut bleibt Blaukraut","Beide",0.5,"Blaukraut bleibt Blaukraut, Brautkleid bleibt Brautkleid.","Als Sprechgroove mit Schnipsen auf 2 und 4 beginnen, dann auf der Melodie singen und das Tempo steigern.","bl und br sauber trennen, Groove halten.","Mittellage","Gruppe A spricht, Gruppe B singt, dann tauschen.","QB, Muster: EW","DE",null,[["Muster",A("4/4","1/8","1/4=104","C","G G G E C2 z2 | G G G E C2 z2 |]",["Blau-kraut bleibt Blau-kraut, Braut-kleid bleibt Braut-kleid."])]]],
+["ZB07","zb",6,"Wir Wiener Waschweiber","Beide",1,"Wir Wiener Waschweiber würden weiße Wäsche waschen, wenn wir wüssten, wo wirklich weiches, warmes Waschwasser wäre.","Auf einem Ton im Rhythmus singen, den Atem für die ganze Zeile einteilen, dann halbtonweise höher.","Langer Atem, w und v sauber, Textfluss.","ein Ton, halbtonweise","Ab der zweiten Zeile leiser werden und trotzdem deutlich bleiben.","POT, Rhythmus: EW","DE",null,[["Muster",A("4/4","1/8","1/4=96","C","G G G G G G G G | G G G G G2 G2 | G G G G G G G2 | G G G G G/G/G/G/ G2 |]",["Wir Wie-ner Wasch-wei-ber wür-den wei-ße Wä-sche wa-schen, wenn wir wüss-ten, wo wirk-lich wei-ches, war-mes Wasch-was-ser wä-re."])]]],
+["ZB08","zb",6,"In Ulm und um Ulm","Beide",0.5,"In Ulm und um Ulm und um Ulm herum.","Kurz, rhythmisch und mit klaren Konsonanten singen, dann als Ostinato wiederholen.","Lippenschluss auf m, kurze Vokale.","Mittellage","Als Begleitostinato unter Bruder Jakob legen.","UV, Muster: EW","DE",null,[["Muster",A("4/4","1/8","1/4=100","C","G G E E C C E E | G2 c2 z4 |]",["In Ulm und um Ulm und um Ulm he-rum."])]]],
+["ZB09","zb",6,"Esel fressen Nesseln nicht","Chor",1,"Esel fressen Nesseln nicht, Nesseln fressen Esel nicht.","Erst gemeinsam sprechen, dann als Sprechkanon in drei Gruppen, Einsatz nach einem Takt.","Rhythmus halten, während andere Gruppen dagegen sprechen.","gesprochen","Mit Body-Clapping aus P07 kombinieren.","UV, als Kanon bei JAN, Rhythmus: EW","DE",{v:3,e:4},[["Sprechkanon für 3 Gruppen",A("4/4","1/8","1/4=96","C","B B B B B B B2 | B B B B B B B2 |]",["E-sel fres-sen Nes-seln nicht, Nes-seln fres-sen E-sel nicht."])]]],
+["ZB10","zb",6,"Nonsens-Silben auf der Tonleiter","Beide",0.5,"Kling-klang, Klipp-klapp, Zick-zack, Ruck-zuck!","Lautmalerische Silbenketten auf der Tonleiter abwärts singen, dann die Melodie rückwärts, der Text bleibt vorne. Bringt Lockerheit und gute Laune in die Gruppe.","Artikulation, Lockerung, Gruppengefühl.","Mittellage","Die Gruppe eigene Silbenketten erfinden lassen.","DLI, Text und Muster: EW","DE",null,[["Muster",A("4/4","1/4","1/4=100","C","c B A G | F E D C |]",["Kling-klang, Klipp-klapp, Zick-zack, Ruck-zuck!"])]]]
+];
+
+const MORE=[
+["Viva la musica","Michael Praetorius, 1571 bis 1621, gemeinfrei.","MUS"],
+["Dona nobis pacem","Melodie mündlich überliefert, oft ohne Beleg Mozart zugeschrieben, gemeinfrei.","WPD"],
+["Froh zu sein bedarf es wenig","August Mühling, 19. Jahrhundert, gemeinfrei.","WPF"],
+["Hey, ho, nobody home","Thomas Ravenscroft, 1609, gemeinfrei. Die deutsche Fassung Hejo, spann den Wagen an hat einen jüngeren Text, dessen Herkunft ich nicht geprüft habe.","CPH"],
+["Shalom chaverim","Herkunft unklar, möglicherweise 20. Jahrhundert. Deshalb hier ohne Noten.","WPS"]
+];
+
+const PRE=[
+{id:"p-chor",name:"Chorprobe",desc:"Nach dem Beispielplan von Alfred Music. Empfohlen sind 8 bis 12 Minuten.",steps:[["K04",1,"Haltungs-Check K05 gleich anhängen."],["A02",1,"8, 12, 16 Zählzeiten."],["A03",0.5,"Pulsiert auf sch."],["S02",1,"Als Sirene."],["S01",1,"Fünftonfolge abwärts, halbtonweise höher."],["R01",1,""],["R02",1,"Einen Problemvokal aus dem Stück wählen."],["U01",1,""],["B01",0.5,""],["B03",0.5,"Ein Muster reicht."],["G02",1.5,"Danach direkt ins erste Stück."]]},
+{id:"p-pop",name:"Pop- und Musicalchor",desc:"Halbverschluss zuerst, dann Twang, Sprechnähe, Riffs und Groove. Für Pop-, Gospel- und Musicalchöre.",steps:[["K04",1,"Schultern und Kiefer locker."],["P07",1,"Im Tempo des ersten Songs."],["A03",0.5,"Pulsiert wie eine Hi-Hat."],["S04",1.5,"Halbverschluss zuerst, siehe POR."],["S02",1,"Als Sirene."],["P01",1,"Twang auf nya, nicht laut."],["P04",1,"Hell und nach vorne."],["P02",1,"Erst sprechen, dann singen."],["P05",1,"Langsam, dann schneller."],["ZB03",1,"Auf einem Ton, halbtonweise höher."],["P06",1,"Boots and Cats."],["KA01",1,"Im Swing mit Schnipsen auf 2 und 4."]]},
+{id:"p-groove",name:"Groove und Gehör",desc:"Mentales Warm-up für Popchöre nach Gerlitz und Warming Up. Danach einen Song singen, den alle auswendig können.",steps:[["P17",1,"Gehen und auf t sprechen."],["P16",1,""],["P18",1,"Klatscher, Laut, Wort."],["P15",1,"Rhythmen aus dem ersten Song."],["G06",1.5,""],["G07",1.5,"Erst Ganztöne, dann der Cluster."],["G09",1,"Mit einem Song, den alle auswendig können."]]},
+{id:"p-auftritt",name:"Vor dem Auftritt",desc:"Kurz und vertraut, empfohlen sind 5 bis 7 Minuten.",steps:[["K02",0.5,""],["A01",1,""],["S04",1.5,"Alternativ S02 Lippenflattern, wenn kein Halm da ist."],["R01",1,""],["U01",1,"Nur bis zur höchsten Lage des Programms."],["G01",1,"Auf dem Anfangston des ersten Stücks."]]},
+{id:"p-solo",name:"Solo-Training",desc:"Mit den fünf Übungen, die Titze 2001 als die besten nennt.",steps:[["K01",1,""],["K04",1,""],["A02",1,""],["A03",1,""],["S04",2,"Titze Nr. 1: Halbverschluss auf Glissandi und Skalen."],["S05",1.5,"Titze Nr. 2: erst nur abwärts, dann auf und ab."],["B05",1,"Titze Nr. 3."],["R04",2,"Titze Nr. 4."],["B01",1,"Titze Nr. 5."],["R05",1.5,""],["U02",1,""],["B02",1,""]]},
+{id:"p-cool",name:"Cool-down",desc:"Nach Probe oder Auftritt, die Stimme zurück in die Sprechlage bringen.",steps:[["C01",2,""],["C02",1,""],["C03",1,""],["C04",1,""]]}
+].map(p=>({...p,pre:true,steps:p.steps.map(s=>({nr:s[0],min:s[1],hint:s[2]}))}));
+
+const RULES=[
+["Reihenfolge der Bausteine: Körper, Atem, Stimme, dann Singübungen. Abweichungen nur bewusst wählen.","HSLU"],
+["Vom Groben zum Feinen: Körper, Atem, sanfter Einsatz, Resonanz und Vokale, Umfang, zum Schluss Artikulation und Gehör.","ALF"],
+["Dauer in der Chorprobe: 8 bis 12 Minuten. Vor Auftritten 5 bis 7 Minuten mit einer kurzen, vertrauten Folge.","ALF"],
+["Die HSLU-Vorlage nennt 10 bis 25 Minuten, je nach Probendauer. Weniger ist oft mehr.","HSLU"],
+["Vom Leichten zum Schweren und vom kleinen zum großen Tonumfang steigern.","HSLU"],
+["Ruhige und schnelle Übungen abwechseln, Wiederholungen bewusst nutzen.","HSLU"],
+["Übungen vorher an der eigenen Stimme ausprobieren und eine passende Geste finden.","HSLU, HEI"],
+["Übungen auf das Repertoire abstimmen: z. B. einen Oktavsprung, eine lange leise Phrase oder einen schwierigen Rhythmus vorab üben.","ALF, HSLU"],
+["Atemübungen mit dem Ausatmen beginnen, das Einatmen kommt reflektorisch.","HSLU"],
+["Probleme im Mischklang sind meist Vokalprobleme, deshalb Vokalausgleich einplanen.","ALF"],
+["Ein einfacher Kanon als Einsingübung hilft bei Mischklang und Balance.","ALF5"],
+["Halbverschluss-Übungen wie Summen, Lippenflattern und Strohhalm sind seit über drei Jahrzehnten Forschungsthema. Druck im Mundraum, Auswahl von wenig zu viel: m, n, u, Trinkhalm, stimmhaftes s, Zungen-R, w, dünner Halm, Lippen-Zungen-Flattern, Halm im Wasser.","MAX, HIJ"],
+["Die Forschung stützt den Nutzen des klassischen Einsingens schwächer, als die Praxis vermuten lässt. Halbverschluss-Übungen zeigen in Studien noch am ehesten messbare Effekte.","DUK, POR"],
+["Cool-down: Singende nahmen in einer Studie eine positive Wirkung wahr, statistisch signifikant war die Verbesserung nicht.","RAG"],
+["Einsingen eher kurz halten, etwa 10 Minuten. Lieber später am konkreten Stück noch einmal gezielt üben.","GER"],
+["Das Einsingen mit einem Song abschließen, den alle auswendig können, gern gemischt aufgestellt.","GER"],
+["Jede Übung unabhängig von der notierten Tonhöhe auch tiefer und höher singen.","DLI"],
+["Für einen stimmigen Akkord: gleichzeitig einsetzen, dieselbe Vokalfarbe, gleichzeitig beenden. Bei erweiterten Akkorden den Grunddreiklang lauter als die Zusatztöne.","WU"],
+["Intonation gelingt auf uh leichter als auf ah.","WU"],
+["An schwierigen Tagen nichts erzwingen. Temperamentvolle eher bremsen, Schüchterne ermutigen.","DLI"]
+];
+
+const ABGLEICH=[
+["Bestätigt durch Musical-Quellen: Lippenflattern auf einem Ton und als Arpeggio (S02), Zischen und Zählen auf dem Atem (A02), leichte Staccato-Arpeggien in der Kopfstimme (B01), Vokalreihe mit hellem i als Führung (R02) und Fünftonfolgen als Grundmuster.","NATS"],
+["Für Sängerinnen und Sänger aus Pop und Musical: In einer Studie mit 30 Personen brachte Einsingen mit Halbverschluss günstigere Werte als traditionelles Einsingen auf offenem a. Nach dem traditionellen Einsingen gab es Hinweise auf frühe Ermüdung. Darum beginnt der Pop-Ablauf mit S04.","POR"],
+["Neu ergänzt für Pop und Musical: Twang (P01), Sprechen dann singen (P02), Taxi-Ruf (P03), nah nee hell (P04), Pentatonik-Riffs (P05), Vocal Percussion (P06), Body-Clapping (P07), Pausenübung (P08), Einsätze (P09) und Backbeat (P10).","NATS, FHFT, ENS, 30DS, UBC, GLO, CVJM, SHAW"],
+["Twang zuerst in normaler Sprechlautstärke üben, dann auf nya singen, erst in der Mittellage und mit kurzen Phrasen.","FHFT"],
+["Belt und Mix: sprechnah, über etwa a' leiser werden oder in die Kopfstimme gehen. Der Hals darf nie wehtun.","NATS"],
+["Vocal Percussion: Wasser bereithalten, langsam aufbauen und Überlastung vermeiden. Beim Mikrofon etwas seitlich vom Mund bleiben.","GLO"],
+["Zungenbrecher auf einem Ton singen und bei jeder Wiederholung einen Halbton höher gehen, das wird in mehreren Quellen so empfohlen.","CAR, MK8"],
+["Abgleich mit deinen fünf PDFs: 26 Übungen der App kommen dort in ähnlicher Form vor, die Seitenverweise stehen auf den Karten unter In deinen Unterlagen. 31 Übungen sind daraus neu dazugekommen, dazu der Ablauf Groove und Gehör.","E9, DLI, LOI, WU, GER"],
+["In den vorliegenden Seiten deiner PDFs kommen Strohhalm, Cool-down, Belt und Vocal Percussion nicht vor. Diese Teile der App stützen sich auf die übrigen Quellen.","NATS, POR, GLO, OEZ"],
+["Der Gerlitz-Auszug bestätigt den Pop-Schwerpunkt: kurzes Einsingen, mentales Warm-up mit Puls, Groove und Hören, Abschluss mit einem auswendig gesungenen Song.","GER"],
+["Fachbücher speziell für Pop-, Jazz- und Showchöre, z. B. von Deke Sharon und J. D. Frizzell oder Kirby Shaw, decken zusätzlich Improvisation, Blend und Stilübungen ab. Die Übungen daraus sind geschützt und hier nicht abgedruckt.","SHA, SHAW"]
+];
+
+const SRC=[
+["HSLU","Grosch, U., Albrecht, S.: Inhalte der chorischen Stimmbildung, Bausteine für das Einsingen. Hochschule Luzern, Musik.","https://blog.hslu.ch/vocal/files/2020/03/Inhalte-der-chorischen-Stimmbildung-Bausteine.pdf"],
+["ALF","Alfred Music Blog: Choral Warm-Ups That Actually Work. A Director's Guide to the First Ten Minutes of Rehearsal.","https://www.alfred.com/blogs/alfred-music-blog/choral-warm-ups-that-actually-work-a-directors-guide-to-the-first-ten-minutes-of-rehearsal"],
+["ALF5","Albrecht, S. K., Alfred Music Blog 2018: 5-Minute Warm-Ups. Warming up the Voice and the Body.","https://www.alfred.com/blog/5-minute-warm-ups-warming-voice-and-body/"],
+["LANA","Alfred Music Blog: Choral Warm-Ups, 7 Essential Elements of Any Rehearsal. Nach Robyn Lana: Voices in Harmony.","https://www.alfred.com/blogs/alfred-music-blog/choral-warm-ups-7-essential-elements-any-rehearsal"],
+["NATS","National Association of Teachers of Singing: Begleitmaterial zu So You Want to Sing Music Theater, mit Übungen u. a. nach Mary Saunders-Barton.","https://www.nats.org/Music_Theater_-_Resources.html"],
+["POR","Portillo, M. P., Rojas, S., Guzman, M., Quezada, C. 2018: Comparison of Effects Produced by Physiological Versus Traditional Vocal Warm-up in Contemporary Commercial Music Singers. Journal of Voice 32, Heft 2, S. 200 bis 208.","https://investigadores.uandes.cl/en/publications/comparison-of-effects-produced-by-physiological-versus-traditiona-2/"],
+["FHFT","Frimley Health NHS Foundation Trust: Healthy volume for speech and singing, What is twang?","https://www.fhft.nhs.uk/patients-and-visitors/patient-information-library/twang"],
+["ENS","Ensemble Schools: How to Sing With Twang.","https://www.ensembleschools.com/the-inside-voice/how-to-sing-with-twang/"],
+["30DS","Van Niekerk, C.: Beginner Riffs and Runs for High Voices, Pentatonic Scale Patterns. 30 Day Singer.","https://www.30daysinger.com/tutorial/beginner-riffs-and-runs-for-high-voices/4"],
+["GLO","Glodich, J. 2015: Vocal Percussion in Contemporary Choral Music. Choral Journal 56, Heft 5, S. 73 bis 79.","https://acda-publications.s3.us-east-2.amazonaws.com/choral_journals/GlodichDec15.pdf"],
+["UBC","UBC Wiki, PHYS341 2022, Projekt 18: Boots and Cats.","https://wiki.ubc.ca/Course:PHYS341/2022/Project18"],
+["CVJM","CVJM Westbund: 3.1 Rhythmik, Der Körper als Instrument.","https://www.cvjm-westbund.de/resources/ecics_1089.pdf"],
+["SHAW","Shaw, K.: Warm-Ups for Pop, Jazz and Show Choirs. Hal Leonard. Verlagsbeschreibung.","https://singers.com/shop/Warm-Ups-for-Pop-Jazz-and-Show-Choirs"],
+["SHA","Sharon, D., Frizzell, J. D.: A Cappella Warm-Ups for Pop and Jazz Choirs. Hal Leonard. Verlagsbeschreibung.","https://singers.com/4475b/Deke-Sharon/A-Cappella-Warm-Ups/"],
+["TIT01","Titze, I. R. 2001: The Five Best Vocal Warm-Up Exercises. Journal of Singing 57, Heft 3, S. 51 bis 52.","https://iro.uiowa.edu/esploro/outputs/journalArticle/Voice-Research-The-Five-Best-Vocal/9984719854102771"],
+["TIT96","Titze, I. R. 1996: More on Messa di Voce. Journal of Singing 52, Heft 4, S. 31 bis 32.","https://iro.uiowa.edu/esploro/outputs/journalArticle/Voice-Research-More-on-Messa-Di/9984719857102771"],
+["TIT10","Titze, I. R. 2010: Introducing a Video for Using Straw Phonation. Journal of Singing 66, Heft 5, S. 559 bis 560. Empfiehlt, ein Lieblingslied durch den Halm zu singen.","https://www.vocology.utah.edu/_resources/documents/intro_a_video_straw_phonation_titze.pdf"],
+["CUH","Cambridge University Hospitals NHS: Semi-occluded vocal tract exercises. Happy Birthday auf u durch den Halm.","https://www.cuh.nhs.uk/patient-information/semi-occluded-vocal-tract-exercises/"],
+["MAX","Maxfield, L., Titze, I., Hunter, E. u. a. 2015: Intraoral pressures produced by thirteen semi-occluded vocal tract gestures. Logopedics Phoniatrics Vocology 40, Heft 2, S. 86 bis 92.","https://pmc.ncbi.nlm.nih.gov/articles/PMC4970513"],
+["HIJ","Hijleh, K., Pinto, C. 2021: A Reflection on the Research. Journal of Singing 77, Heft 3.","https://www.nats.org/_Library/JOS_On_Point/JOS_077_03_2021_333.pdf"],
+["HEL","Heller-Stark, A., Maxfield, L., Herrick, J., Smith, M., Titze, I. 2024: Comparative Study of Two Semi-Occluded Vocal Tract Protocols. Randomisierte klinische Studie.","https://pmc.ncbi.nlm.nih.gov/articles/PMC11567055/"],
+["DUK","Duke, E. E. 2014: The Effect of Traditional Vocal Warm-up Versus Semi-Occluded Vocal Tract Exercises on the Acoustic Parameters of Voice. Masterarbeit, Auburn University.","https://etd.auburn.edu/bitstream/handle/10415/4004/Duke_Final_Thesis_Draft%203_25.pdf;sequence=2"],
+["RAG","Ragan, K. 2015: The Impact of Vocal Cool-down Exercises. Journal of Voice.","https://kariragan.com/the-impact-of-vocal-cool-down-exercises-a/"],
+["OEZ","Özkut, B., Narin, S., Şahin Orhon, E., Denizoğlu, İ. 2024: Vocal Cool-Down in Voice Training. Method and Technical Considerations. IJLEL.","https://dergipark.org.tr/en/download/article-file/3281032"],
+["MAN","Manternach u. a.: The Impact of Semi-Occluded Vocal Tract Warm-Up and Cool-Down Procedures on Singing Teacher Voice Fatigue After Online Instruction. Pilotstudie.","https://vocology.utah.edu/_resources/documents/sovt_warmup_and_cooldown_on_voice_fatigue_after_online_instruction_manternachb_manternachj.pdf"],
+["NSW","NSW Department of Education, The Arts Unit: Focus on consonants.","https://sites.google.com/education.nsw.gov.au/tau-ct-primary-choral-warm-ups/focus-on-consonants"],
+["CAR","Carnegie Hall, Musical Explorers: Vocal and Body Warm-Ups. Zungenbrecher auf einem Ton, halbtonweise höher.","https://carnegiehall.org/Education/Programs/Musical-Explorers/New-York-City/Core-Activities/Vocal-and-Body-Warm-Ups"],
+["MK8","MusicK8 Idea Bank 2004: Several Fun Warm-Ups.","https://www.musick8.com/html/ideaprint.php?ibid=964"],
+["SAL","The Salvation Army: 3 More Choral Warm-ups to Keep you going.","https://salvationist.ca/files/salvationarmy/maga/everybody%20sings/songsters/3_more_songster_warmups.pdf"],
+["POT","Universität Potsdam, Sprecherziehung: Zungenbrecher.","https://www.uni-potsdam.de/fileadmin/projects/zelb/Dokumente/Sprecherziehung/12_Zungenbrecher.pdf"],
+["QB","QuillBot: 92 deutsche Zungenbrecher.","https://quillbot.com/de/blog/woerter-finden/zungenbrecher/"],
+["UV","Holzinger, H. J.: Zungenbrecher und Schüttelreime. Universitat de València.","https://www.uv.es/~holzinge/zngnbrchr.html"],
+["JAN","Janetzko, S., Kornfeld, T. 2019: Sing mit im Kanon. Inhaltsverzeichnis mit Esel fressen Nesseln nicht als traditionellem Kanon.","https://www.onleihe.de/static/content/bookwire_nat/20190508/9783957228024/v9783957228024.pdf"],
+["MAM","Mama Lisa's World: Alle meine Entchen, Lied aus dem 19. Jahrhundert.","https://www.mamalisa.com/?t=es&p=254"],
+["MUS","Musicanet: Viva la musica, Michael Praetorius.","https://www.musicanet.org/bdd/en/score/24972-viva-la-musica-michael-praetorius"],
+["WPD","Wikipedia: Dona nobis pacem (round).","https://en.wikipedia.org/wiki/Dona_nobis_pacem_(round)"],
+["WPF","Wikipedia: Froh zu sein bedarf es wenig.","https://en.wikipedia.org/wiki/Froh_zu_sein_bedarf_es_wenig"],
+["CPH","CPDL: Hey, ho, nobody at home, Thomas Ravenscroft.","https://cpdl.org/wiki/index.php/Hey,_ho,_nobody_at_home_(Thomas_Ravenscroft)"],
+["WPS","Wikipedia: Shalom Chaverim.","https://en.wikipedia.org/wiki/Shalom_Chaverim"],
+["HEI","Heizmann, K.: 200 Einsing-Übungen für Chöre und Solisten. Schott, ED 9483. Weiterführend zum Erweitern.","https://www.halleonard.com/product/49047302/200-einsing-ubungen200-einsing-ubungen"],
+["E9","Einsingen um 9: Stimmbildungsübungen, Sammlung 2024, mit Übungen u. a. von Julia Schiwowa, Barbara Böhi und Erika Fritsche. Deine Datei Einsingen-um-9-Stimmbildungsuebungen-zusammengefasst.pdf.","https://www.einsingen-um-9.ch"],
+["DLI","Blecker-Guczki, I. M. 2017, Bearbeitung Simon, A. 2023: Einsing-Übungen vor dem Gottesdienst. Deutsches Liturgisches Institut. Deine Datei Einsinguebungen-vor-dem-Gottesdienst.pdf.",""],
+["LOI","Loichinger, M. 2023: Einsingübungen, Vorschläge für Chorleiter*innen. Deine Datei einsingen-heft.pdf.",""],
+["WU","Warming Up. Ein Handbuch für Warm-ups im Chor, Stimmbildung und gemeinsames Singen. Helbling, Leseprobe. Deine Datei 386227704_Demo.pdf.","https://www.helbling.com/sites/default/files/media/documents/386227704_Demo.pdf"],
+["GER","Gerlitz, C.: Popchor, 1001 Tipps zur Chorleitung. Helbling, Auszug. Deine Datei C8641.pdf.",""],
+["CVT","Sadolin, C. 2014: Complete Vocal Technique. Shout Publishing. Hier nur als Herkunft der Begriffe Neutral, Curbing und Overdrive.",""],
+["EW","Erfahrungswert aus der Praxis, nicht durch die genannten Quellen belegt. Als Vermutung lesen.",""]
+];
+const VERWEIS=[
+["Einsingen um 9, S. 8 bis 10","Komponierte Übungen von Julia Schiwowa: langer Atem, Zwischenklänge mit Halbtönen, Vokal e, Singende Säge für Twang, Zungenpositionen, Jodel-Übung, dunkle Vokale und weitere. S. 6: Höhe mit Legato von Barbara Böhi. S. 8: schwungvolle Übung für Vollstimme von Erika Fritsche und Julia Schiwowa."],
+["Warming Up","Jens' Treppe S. 78, How low can you go und In a cellar black as coal S. 88, When the spotlight turns on S. 129, Luna S. 164, Auf zur None S. 165."],
+["Gottesdienst, S. 4","Acht Spaß-Übungen mit Nonsens-Texten auf der Tonleiter, laut Heft Quelle unbekannt."],
+["Loichinger, S. 5 bis 10","Die Notenbeispiele zu Randstimme, Stimmsitz, Koloratur und Höhe."]
+];
+const STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
+
+const BASE=RAW.map(r=>({nr:r[0],ph:r[1],name:r[2],fuer:r[3],min:r[4],anl:r[5],ziel:r[6],lage:r[7],vari:r[8],q:r[9],kind:"ex",txt:"",lang:"",can:null,nt:NOTES[r[0]]||[],own:false})).concat(KZ.map(r=>({nr:r[0],kind:r[1],ph:r[2],name:r[3],fuer:r[4],min:r[5],txt:r[6],anl:r[7],ziel:r[8],lage:r[9],vari:r[10],q:r[11],lang:r[12],can:r[13],nt:r[14],own:false})));
+
+const $=s=>document.querySelector(s);
+const lockScroll=on=>{document.documentElement.classList.toggle("lock",on);document.body.classList.toggle("lock",on)};
+const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fm=m=>String(Math.round((+m||0)*10)/10).replace(".",",");
+const sid=s=>String(s).replace(/[^A-Za-z0-9]/g,"_");
+const str=(v,n)=>typeof v==="string"?v.slice(0,n||4000):"";
+const canon=v=>Array.isArray(v)?"["+v.map(canon).join(",")+"]":(v&&typeof v==="object")?"{"+Object.keys(v).sort().map(k=>JSON.stringify(k)+":"+canon(v[k])).join(",")+"}":JSON.stringify(v);
+const clk=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const clampInt=(v,a,b,d)=>{const n=parseInt(v,10);return isNaN(n)?d:Math.min(b,Math.max(a,n))};
+
+/* ABC: parsing for playback */
+const KEYSIG={C:0,G:1,D:2,A:3,E:4,B:5,"F#":6,"C#":7,F:-1,Bb:-2,Eb:-3,Ab:-4,Db:-5,Gb:-6,Cb:-7,Am:0,Em:1,Bm:2,"F#m":3,"C#m":4,"G#m":5,Dm:-1,Gm:-2,Cm:-3,Fm:-4,Bbm:-5,Ebm:-6};
+const SEMI={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function keyAcc(k){const n=KEYSIG[k]||0,acc={},sh="FCGDAEB",fl="BEADGCF";if(n>0)for(let i=0;i<n;i++)acc[sh[i]]=1;else for(let i=0;i<-n;i++)acc[fl[i]]=-1;return acc}
+function parseAbc(abc){
+  let L=1/8,qb=1/4,bpm=90,K={},perc=false;
+  const body=[];
+  for(const raw of String(abc).split(/\r?\n/)){
+    const ln=raw.replace(/%.*$/,"");
+    const m=ln.match(/^\s*([A-Za-z]):(.*)$/);
+    if(m){
+      const f=m[1],v=m[2].trim();
+      if(f==="L"){const p=v.split("/");const a=parseFloat(p[0]),b=parseFloat(p[1]||"1");if(a>0&&b>0)L=a/b}
+      else if(f==="Q"){const q=v.match(/(\d+)\s*\/\s*(\d+)\s*=\s*(\d+)/);if(q){qb=(+q[1])/(+q[2]);bpm=+q[3]}else{const n=v.match(/^(\d+)$/);if(n)bpm=+n[1]}}
+      else if(f==="K"){let k=(v.split(/\s+/)[0]||"C");k=k.replace(/maj$/i,"").replace(/min$/i,"m");K=keyAcc(k);perc=/clef\s*=\s*perc/i.test(v)}
+      continue;
+    }
+    body.push(ln);
+  }
+  const s=body.join(" ");
+  const ev=[];let t=0,i=0,bar={},tie=false,tup=null,broken=null,last=null;
+  function dur(){const m=s.slice(i).match(/^(\d*)(\/*)(\d*)/);i+=m[0].length;const num=m[1]?+m[1]:1;let den=1;if(m[2])den=m[3]?+m[3]:Math.pow(2,m[2].length);return num/den}
+  function pitch(){
+    let acc=null;const am=s.slice(i).match(/^(\^\^|\^|__|_|=)/);
+    if(am){acc={"^^":2,"^":1,"__":-2,"_":-1,"=":0}[am[1]];i+=am[1].length}
+    const c=s[i];
+    if(c==="z"||c==="x"||c==="Z"){i++;return {rest:true}}
+    if(!/[A-Ga-g]/.test(c||""))return null;
+    i++;const up=c.toUpperCase();let oct=c===up?0:1;
+    while(s[i]==="'"||s[i]===","){oct+=s[i]==="'"?1:-1;i++}
+    const id=up+oct;
+    if(acc!==null)bar[id]=acc;
+    const a=acc!==null?acc:(id in bar?bar[id]:(K[up]||0));
+    return {m:60+12*oct+SEMI[up]+a};
+  }
+  function add(ms,d){
+    if(tie&&last&&ms.length===1&&last.m.length===1&&last.m[0]===ms[0]){last.d+=d;t+=d;tie=false;return}
+    tie=false;last={t:t,d:d,m:ms};ev.push(last);t+=d;
+  }
+  while(i<s.length){
+    const c=s[i];
+    if(c==='"'){const j=s.indexOf('"',i+1);i=j<0?s.length:j+1;continue}
+    if(c==="!"||c==="+"){const j=s.indexOf(c,i+1);i=j<0?s.length:j+1;continue}
+    if(c==="{"){const j=s.indexOf("}",i+1);i=j<0?s.length:j+1;continue}
+    if(c==="|"||c===":"){bar={};i++;continue}
+    if(c==="]"){i++;continue}
+    if(c==="["){
+      const rest=s.slice(i);
+      if(/^\[[A-Za-z]:/.test(rest)){const j=s.indexOf("]",i);i=j<0?s.length:j+1;continue}
+      if(rest[1]==="|"){bar={};i+=2;continue}
+      if(/^\[\d/.test(rest)){i+=2;continue}
+      i++;const ms=[];let d0=null;
+      while(i<s.length&&s[i]!=="]"){const p=pitch();if(p&&!p.rest){const d=dur();if(d0===null)d0=d;ms.push(p.m)}else if(!p)i++}
+      i++;const mult=dur();
+      if(ms.length){let d=(d0||1)*mult*L;if(tup){d*=tup.f;tup.n--;if(tup.n<=0)tup=null}add(ms,d)}
+      continue;
+    }
+    if(c==="("){const m=s.slice(i).match(/^\((\d)/);if(m){const n=+m[1];tup={f:n===3?2/3:n===2?3/2:n===4?3/4:1,n:n};i+=2}else i++;continue}
+    if(c==="-"){tie=true;i++;continue}
+    if(c===">"||c==="<"){if(last){const f=c===">"?1.5:0.5;const delta=last.d*(f-1);last.d*=f;t+=delta;broken=c===">"?0.5:1.5}i++;continue}
+    if(/[\^_=A-Ga-gzxZ]/.test(c)){
+      const p=pitch();if(!p){i++;continue}
+      let d=dur()*L;
+      if(tup){d*=tup.f;tup.n--;if(tup.n<=0)tup=null}
+      if(broken){d*=broken;broken=null}
+      if(p.rest){t+=d;last=null;tie=false;continue}
+      add([p.m],d);continue;
+    }
+    i++;
+  }
+  return {ev:ev,len:t,whole:(60/bpm)/qb,beat:qb,perc:perc};
+}
+const NN=["C","Cis","D","Dis","E","F","Fis","G","Gis","A","B","H"];
+function noteNames(p,tr){return p.ev.map(e=>e.m.map(m=>NN[((m+tr)%12+12)%12]).join("+")).join(" ")}
+
+/* audio */
+let AC=null,live=[],endT=null,playBtn=null;
+function ac(){try{if(navigator.audioSession&&navigator.audioSession.type!=="playback")navigator.audioSession.type="playback"}catch(e){}try{if(!AC){const X=window.AudioContext||window.webkitAudioContext;if(X)AC=new X()}if(AC&&AC.state==="suspended")AC.resume()}catch(e){}return AC}
+function stopAll(){
+  for(const o of live){try{o.stop()}catch(e){}}
+  live=[];clearTimeout(endT);
+  if(playBtn){playBtn.textContent=playBtn.dataset.label||playBtn.textContent;playBtn.removeAttribute("aria-pressed")}
+  playBtn=null;
+}
+function tone(sec,vol){
+  const ctx=ac();if(!ctx)return;
+  try{const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.03);g.gain.setValueAtTime(vol,t+sec-.15);g.gain.exponentialRampToValueAtTime(.0001,t+sec);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+sec+.05)}catch(e){}
+}
+function playSeq(evs,whole,btn){
+  stopAll();const ctx=ac();if(!ctx||!evs.length)return;
+  const t0=ctx.currentTime+0.06;let end=0;
+  try{
+    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2400;lp.connect(ctx.destination);
+    for(const e of evs){
+      const st=t0+e.t*whole,du=Math.max(0.07,e.d*whole);end=Math.max(end,e.t*whole+du);
+      for(const m of e.m){
+        const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=440*Math.pow(2,(m-69)/12);
+        const v=e.v||0.22;g.gain.setValueAtTime(0.0001,st);g.gain.exponentialRampToValueAtTime(v,st+0.025);g.gain.setValueAtTime(v,st+Math.max(0.03,du-0.08));g.gain.exponentialRampToValueAtTime(0.0001,st+du);
+        o.connect(g);g.connect(lp);o.start(st);o.stop(st+du+0.03);live.push(o);
+      }
+    }
+  }catch(e){}
+  if(btn){playBtn=btn;btn.dataset.label=btn.dataset.label||btn.textContent;btn.textContent="Stopp";btn.setAttribute("aria-pressed","true")}
+  endT=setTimeout(stopAll,(end+0.25)*1000);
+}
+function shifted(p,dt,tr,v){return p.ev.map(e=>({t:e.t+dt,d:e.d,m:e.m.map(m=>m+tr),v:v}))}
+
+/* notation registry */
+const NT=new Map();
+function reg(k,abc,can,np){const o=NT.get(k);if(o&&o.abc===abc){o.can=can;o.np=np;return o}const n={abc:abc,can:can,np:np,tr:o?o.tr:0,p:null};NT.set(k,n);return n}
+function parsed(n){if(!n.p){try{n.p=parseAbc(n.abc)}catch(e){n.p={ev:[],len:0,whole:2,beat:.25}}}return n.p}
+const trLabel=tr=>tr===0?"Original":(tr>0?"+":"−")+Math.abs(tr)+" Halbt.";
+
+let abcState="loading";
+function loadAbc(src,next){const sc=document.createElement("script");sc.src=src;sc.async=true;if(/^https?:/.test(src))sc.crossOrigin="anonymous";sc.onload=()=>{if(window.ABCJS&&typeof window.ABCJS.renderAbc==="function"){abcState="ok";redrawScores()}else next()};sc.onerror=next;document.head.appendChild(sc)}
+function drawScore(el){
+  const box=el.closest(".nt");if(!box)return;
+  const n=NT.get(box.dataset.k);if(!n)return;
+  const w=Math.max(220,box.clientWidth||el.clientWidth||320);
+  delete el.dataset.pend;
+  if(abcState==="loading"){el.dataset.pend="1";el.innerHTML='<p class="nt-fb">Noten werden geladen.</p>';return}
+  el.dataset.w=String(w);
+  if(abcState==="ok"){
+    try{
+      const big=!!el.closest(".run");const sc=w<480?0.8:(big?1.15:1);
+      const opt=sw=>({staffwidth:sw,scale:sc,add_classes:true,paddingtop:2,paddingbottom:4,paddingleft:0,paddingright:0,visualTranspose:n.tr,wrap:{minSpacing:1.8,maxSpacing:2.7,preferredMeasuresPerLine:4}});
+      let sw=Math.max(180,Math.floor((w-14)/sc));
+      window.ABCJS.renderAbc(el,n.abc,opt(sw));
+      /* neuere abcjs-Versionen geben links und rechts Rand dazu: dann schmaler neu setzen, damit nichts über den Rand ragt */
+      const svg=el.querySelector("svg"),real=svg?svg.getBoundingClientRect().width:0;
+      if(real>w+1){sw=Math.max(120,Math.floor(sw-(real-w)/sc)-2);window.ABCJS.renderAbc(el,n.abc,opt(sw))}
+      return;
+    }catch(e){}
+  }
+  const p=parsed(n);
+  el.innerHTML='<p class="nt-fb">Notenbild gerade nicht verfügbar. Töne: <b>'+esc(noteNames(p,n.tr))+'</b></p>';
+}
+let io=null;
+try{io=new IntersectionObserver(es=>{for(const x of es){if(x.isIntersecting){io.unobserve(x.target);drawScore(x.target)}}},{rootMargin:"300px"})}catch(e){io=null}
+function watchScores(root){for(const el of (root||document).querySelectorAll(".score:not([data-w]):not([data-watch])")){el.dataset.watch="1";if(io)io.observe(el);else drawScore(el)}}
+function redrawScores(){for(const el of document.querySelectorAll(".score[data-w],.score[data-pend]"))drawScore(el)}
+let lastW=0,rT=null;
+window.addEventListener("resize",()=>{clearTimeout(rT);rT=setTimeout(()=>{const w=window.innerWidth;if(Math.abs(w-lastW)<30)return;lastW=w;for(const el of document.querySelectorAll(".score[data-w]")){const bw=(el.closest(".nt")||el).clientWidth||0;if(bw&&Math.abs(bw-(+el.dataset.w))>24)drawScore(el)}},250)});
+lastW=window.innerWidth;
+
+function ntHTML(e,i){
+  const x=e.nt[i];const t=x[0],abc=x[1],np=!!x[2];
+  const k=e.nr+"::"+i;const n=reg(k,abc,e.can,np);
+  const ctl=np?"":`<div class="nt-ctl"><button class="sbtn" data-act="nplay">Anhören</button><button class="sbtn" data-act="nrise">Halbtonweise hoch</button>${e.can?`<button class="sbtn" data-act="ncanon">Als Kanon, ${e.can.v} Gruppen</button>`:""}<span class="trn"><button class="sbtn sq" data-act="ntr" data-d="-1" aria-label="Einen Halbton tiefer">−</button><span class="trv">${trLabel(n.tr)}</span><button class="sbtn sq" data-act="ntr" data-d="1" aria-label="Einen Halbton höher">+</button></span></div>`;
+  return `<div class="nt" data-k="${esc(k)}"><div class="nt-head"><span class="nt-t">${esc(t)}</span>${ctl}</div><div class="score" role="img" aria-label="Noten: ${esc(t)}"></div></div>`;
+}
+function ntAction(a,btn){
+  const box=btn.closest(".nt");if(!box)return;
+  const k=box.dataset.k,n=NT.get(k);if(!n)return;
+  if(a==="ntr"){
+    n.tr=Math.max(-12,Math.min(12,n.tr+(+btn.dataset.d||0)));
+    for(const b of document.querySelectorAll('.nt[data-k="'+CSS.escape(k)+'"]')){b.querySelector(".trv").textContent=trLabel(n.tr);const sc=b.querySelector(".score");if(sc&&(sc.dataset.w||sc.dataset.pend))drawScore(sc)}
+    return;
+  }
+  if(btn.getAttribute("aria-pressed")==="true"){stopAll();return}
+  const p=parsed(n);if(!p.ev.length)return;
+  let evs=[];
+  if(a==="nplay")evs=shifted(p,0,n.tr,0.22);
+  else if(a==="nrise"){const gap=p.beat;for(let r=0;r<4;r++)evs=evs.concat(shifted(p,r*(p.len+gap),n.tr+r,0.22))}
+  else if(a==="ncanon"&&n.can){const V=n.can.v,E=n.can.e/4,R=2,vol=0.2/Math.sqrt(V);for(let v=0;v<V;v++)for(let r=0;r<R;r++)evs=evs.concat(shifted(p,v*E+r*p.len,n.tr,vol))}
+  playSeq(evs,p.whole,btn);
+}
+
+/* state */
+const KINDOK=["ex","kanon","zb"];
+const BASEIDS=new Set(BASE.map(b=>b.nr)),PREIDS=new Set(PRE.map(p=>p.id));
+function normRec(o){
+  if(!o||typeof o!=="object")return null;
+  let nts=(Array.isArray(o.nts)?o.nts:[]).filter(n=>n&&typeof n==="object").map(n=>({t:str(n.t,120),abc:str(n.abc,6000),np:!!n.np})).filter(n=>n.abc.trim()).slice(0,8);
+  if(!nts.length&&typeof o.abc==="string"&&o.abc.trim())nts=[{t:"Eigene Noten",abc:o.abc.slice(0,6000),np:false}];
+  const r={nr:str(o.nr,12),kind:KINDOK.includes(o.kind)?o.kind:"ex",ph:clampInt(o.ph,1,9,1),name:str(o.name,200),fuer:["Chor","Solo","Beide"].includes(o.fuer)?o.fuer:"Beide",min:Math.max(0,+o.min||0),txt:str(o.txt,600),anl:str(o.anl),ziel:str(o.ziel),lage:str(o.lage,200),vari:str(o.vari),q:str(o.q,200),lang:str(o.lang,40),nts:nts,canV:clampInt(o.canV,0,6,0),canE:clampInt(o.canE,1,64,4)};
+  return r.nr&&r.name?r:null;
+}
+function normPlan(p){
+  if(!p||typeof p!=="object")return null;
+  const r={id:str(p.id,40),name:str(p.name,120),desc:str(p.desc,400),steps:(Array.isArray(p.steps)?p.steps:[]).filter(s=>s&&typeof s==="object").map(s=>({nr:str(s.nr,12),min:Math.max(0,+s.min||0),hint:str(s.hint,500)})).slice(0,60)};
+  return r.id&&r.name?r:null;
+}
+const obj=v=>v&&typeof v==="object"&&!Array.isArray(v)?v:{};
+function norm(d){
+  d=obj(d);
+  const own=(Array.isArray(d.own)?d.own:[]).map(normRec).filter(Boolean);
+  const plans=(Array.isArray(d.plans)?d.plans:[]).map(normPlan).filter(Boolean);
+  const notes={};
+  for(const k of Object.keys(obj(d.notes))){if(typeof d.notes[k]==="string"&&d.notes[k])notes[k.slice(0,12)]=d.notes[k].slice(0,4000)}
+  const favs=(Array.isArray(d.favs)?d.favs:[]).filter(x=>typeof x==="string").slice(0,500);
+  const edits={};
+  for(const k of Object.keys(obj(d.edits))){if(BASEIDS.has(k)){const r=normRec({...obj(d.edits[k]),nr:k});if(r)edits[k]=r}}
+  const planEdits={};
+  for(const k of Object.keys(obj(d.planEdits))){if(PREIDS.has(k)){const r=normPlan({...obj(d.planEdits[k]),id:k});if(r)planEdits[k]=r}}
+  const hidden=(Array.isArray(d.hidden)?d.hidden:[]).filter(x=>typeof x==="string"&&BASEIDS.has(x));
+  const hiddenPlans=(Array.isArray(d.hiddenPlans)?d.hiddenPlans:[]).filter(x=>typeof x==="string"&&PREIDS.has(x));
+  const trash=(Array.isArray(d.trash)?d.trash:[]).filter(x=>x&&typeof x==="object"&&(x.type==="ex"||x.type==="plan")).map(x=>({type:x.type,at:+x.at||0,rec:x.type==="ex"?normRec(x.rec):normPlan(x.rec)})).filter(x=>x.rec).slice(-50);
+  return {favs:favs,notes:notes,own:own,plans:plans,edits:edits,planEdits:planEdits,hidden:hidden,hiddenPlans:hiddenPlans,trash:trash};
+}
+const LS="einsingen-daten-v1",LSU="einsingen-ansicht-v1",LSP="einsingen-profil-v1";
+let S=norm(null);
+try{const c=JSON.parse(localStorage.getItem(LS)||"null");if(c)S=norm(c)}catch(e){}
+let F={q:"",ph:0,fuer:"Alle",fav:false};
+try{const u=JSON.parse(localStorage.getItem(LSU)||"null");if(u&&typeof u==="object")F={q:"",ph:clampInt(u.ph,0,9,0),fuer:["Alle","Chor","Solo"].includes(u.fuer)?u.fuer:"Alle",fav:!!u.fav}}catch(e){}
+
+function recItem(r,fl){return {...r,can:r.canV>1?{v:r.canV,e:r.canE}:null,nt:r.nts.map(n=>[n.t||"Noten",n.abc,n.np?1:0]),own:!!fl.own,edited:!!fl.edited,base:!!fl.base}}
+function itemRec(e){return {nr:e.nr,kind:e.kind,ph:e.ph,name:e.name,fuer:e.fuer,min:e.min,txt:e.txt||"",anl:e.anl||"",ziel:e.ziel||"",lage:e.lage||"",vari:e.vari||"",q:e.q||"",lang:e.lang||"",nts:(e.nt||[]).map(x=>({t:x[0],abc:x[1],np:!!x[2]})),canV:e.can?e.can.v:0,canE:e.can?e.can.e:4}}
+const baseItem=b=>S.edits[b.nr]?recItem(S.edits[b.nr],{edited:true,base:true}):{...b,base:true};
+const allEx=()=>BASE.filter(b=>!S.hidden.includes(b.nr)).map(baseItem).concat(S.own.map(o=>recItem(o,{own:true})));
+const exBy=nr=>{const e=allEx().find(x=>x.nr===nr);if(e)return e;const b=BASE.find(x=>x.nr===nr);if(b)return baseItem(b);const t=S.trash.find(x=>x.type==="ex"&&x.rec.nr===nr);return t?recItem(t.rec,{own:true}):null};
+const allPlans=()=>PRE.filter(p=>!S.hiddenPlans.includes(p.id)).map(p=>S.planEdits[p.id]?{...S.planEdits[p.id],id:p.id,pre:true,edited:true}:p).concat(S.plans.map(p=>({...p,pre:false})));
+const trashCount=()=>S.hidden.length+S.hiddenPlans.length+S.trash.length;
+const total=p=>p.steps.reduce((a,s)=>a+(+s.min||0),0);
+
+const STAT={loading:"Wird für offline vorbereitet",ok:"Offline bereit, Daten auf diesem Gerät",local:"Nur online: für den Offline-Betrieb über eine https-Adresse öffnen",update:"Neue Version installiert"};
+function setStatus(s){const el=$("#status");el.dataset.s=s;el.querySelector("span").textContent=STAT[s]||""}
+
+/* profile */
+function applyProfil(p){
+  const r=document.documentElement;
+  if(p==="light"||p==="dark")r.setAttribute("data-profil",p);else r.removeAttribute("data-profil");
+  for(const b of document.querySelectorAll("#prof button"))b.setAttribute("aria-pressed",String(b.dataset.p===(p||"auto")));
+}
+let PROF="auto";
+try{const p=localStorage.getItem(LSP);if(p==="light"||p==="dark")PROF=p}catch(e){}
+applyProfil(PROF);
+
+/* Speichern auf dem Gerät */
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function persist(){saveLocal()}
+
+/* rendering */
+function renderPlans(){
+  const pl=allPlans();
+  $("#plans").innerHTML=pl.length?"":`<div class="empty">Keine Abläufe. Lege mit Neuer Ablauf einen an oder hol Vorlagen aus dem Papierkorb.</div>`;
+  if(!pl.length)return;
+  $("#plans").innerHTML=pl.map(p=>{
+    const t=total(p);const st=p.steps.map(s=>({...s,e:exBy(s.nr)}));
+    return `<article class="plan">
+<div class="plan-head"><div><h3>${esc(p.name)}</h3><span class="tag">${p.pre?(p.edited?"Vorlage, geändert":"Vorlage"):"Eigener Ablauf"}, ${p.steps.length} Schritte</span>${p.desc?`<p class="desc">${esc(p.desc)}</p>`:""}</div>
+<div class="tot">${fm(t)}<small>Minuten</small></div></div>
+<div class="strip" aria-hidden="true">${st.map(s=>`<span class="seg" style="flex-grow:${Math.max(+s.min||0,.15)};background:var(--p${s.e?s.e.ph:1})" title="${esc(s.nr)}"></span>`).join("")}</div>
+<div class="scale" aria-hidden="true"><span>0</span><span>${fm(t)} Min.</span></div>
+<ol class="steps">${st.map(s=>`<li style="--c:var(--p${s.e?s.e.ph:1})"><i class="dot"></i><span class="nr">${esc(s.nr)}</span><span>${esc(s.e?s.e.name:"Übung fehlt")}${s.e&&!isLive(s.nr)?", im Papierkorb":""}</span><span class="m">${fm(s.min)} Min.</span></li>`).join("")}</ol>
+<div class="row"><button class="btn pri" data-act="start" data-id="${esc(p.id)}"${p.steps.length?"":" disabled"}>Starten</button>
+<button class="btn" data-act="editplan" data-id="${esc(p.id)}">Bearbeiten</button></div>
+</article>`}).join("");
+}
+function cardHTML(e){
+  const id="n-"+sid(e.nr),fav=S.favs.includes(e.nr),note=S.notes[e.nr]||"";
+  const pill=e.kind==="ex"?esc(PH[e.ph-1]):esc(KINDS[e.kind])+(e.lang?", "+esc(e.lang):"");
+  const meta=e.can?`${e.can.v} Gruppen, ${fm(e.min)} Min.`:`${esc(e.fuer)}, ${fm(e.min)} Min.`;
+  return `<article class="card" style="--c:var(--p${e.ph})">
+<div class="ex-top"><span class="nr">${esc(e.nr)}</span><span class="pill"><i class="dot"></i>${pill}</span><span class="meta">${meta}</span>
+${e.own?'<span class="flag">eigen</span>':e.edited?'<span class="flag">geändert</span>':""}
+<button class="star" data-act="fav" data-nr="${esc(e.nr)}" aria-pressed="${fav}" aria-label="Favorit ${esc(e.name)}">${STAR}</button></div>
+<h3>${esc(e.name)}</h3>
+${e.txt?`<p class="zbtxt">${esc(e.txt)}</p>`:""}
+<p>${esc(e.anl)}</p>
+${e.ziel?`<p class="ziel"><b>Ziel:</b> ${esc(e.ziel)}</p>`:""}
+${e.nt.map((x,i)=>ntHTML(e,i)).join("")}
+<details${note?" open":""}><summary>Lage, Varianten, Quelle, Notizen</summary>
+<dl><dt>Lage, Tonraum</dt><dd>${esc(e.lage||"keine Angabe")}</dd><dt>Steigern, variieren</dt><dd>${esc(e.vari||"keine Angabe")}</dd><dt>Quelle</dt><dd>${esc(e.q||"Eigene")}</dd>${PDF[e.nr]?`<dt>In deinen Unterlagen</dt><dd>${esc(PDF[e.nr])}</dd>`:""}</dl>
+<label for="${id}">Meine Notizen</label><textarea id="${id}" data-note="${esc(e.nr)}" rows="3">${esc(note)}</textarea>
+</details>
+<div class="row acts"><button class="sbtn" data-act="editex" data-nr="${esc(e.nr)}" aria-label="${esc(e.nr)} bearbeiten">Bearbeiten</button></div></article>`;
+}
+function renderFilters(){
+  const ex=allEx().filter(e=>e.kind==="ex");
+  $("#q").value=F.q;
+  $("#fuer").innerHTML=["Alle","Chor","Solo"].map(f=>`<button class="chip" data-act="fuer" data-f="${f}" aria-pressed="${F.fuer===f}">${f}</button>`).join("")+`<button class="chip" data-act="favf" aria-pressed="${F.fav}">Favoriten <small>${S.favs.filter(n=>allEx().some(e=>e.nr===n)).length}</small></button>`;
+  $("#phases").innerHTML=`<button class="chip" data-act="ph" data-p="0" aria-pressed="${F.ph===0}">Alle Phasen</button>`+PH.map((n,i)=>`<button class="chip" data-act="ph" data-p="${i+1}" aria-pressed="${F.ph===i+1}" style="--c:var(--p${i+1})"><i class="dot"></i>${esc(n)} <small>${ex.filter(e=>e.ph===i+1).length}</small></button>`).join("");
+}
+function renderEx(){
+  const q=F.q.trim().toLowerCase();
+  const list=allEx().filter(e=>e.kind==="ex"&&(!F.ph||e.ph===F.ph)&&(F.fuer==="Alle"||e.fuer===F.fuer||e.fuer==="Beide")&&(!F.fav||S.favs.includes(e.nr))&&(!q||[e.nr,e.name,e.anl,e.ziel,e.vari,e.lage,PDF[e.nr]||""].join(" ").toLowerCase().includes(q))).sort((a,b)=>a.ph-b.ph||a.nr.localeCompare(b.nr));
+  $("#count").textContent=list.length===1?"1 Übung":list.length+" Übungen";
+  $("#exlist").innerHTML=list.length?list.map(cardHTML).join(""):`<div class="empty">Keine Übung passt zu diesen Filtern.</div>`;
+  watchScores($("#exlist"));
+}
+function renderKZ(){
+  const all=allEx();
+  const ka=all.filter(e=>e.kind==="kanon"),zb=all.filter(e=>e.kind==="zb");
+  $("#ka-count").textContent=ka.length+" mit Noten";
+  $("#zb-count").textContent=zb.length+" mit Singmuster";
+  $("#kalist").innerHTML=ka.length?ka.map(cardHTML).join(""):`<div class="empty">Keine Kanons.</div>`;
+  $("#zblist").innerHTML=zb.length?zb.map(cardHTML).join(""):`<div class="empty">Keine Zungenbrecher.</div>`;
+  $("#more").innerHTML=MORE.map(m=>`<li><b>${esc(m[0])}</b>${esc(m[1])} <span class="src">${esc(m[2])}</span></li>`).join("");
+  watchScores($("#v-kanons"));
+}
+function renderRules(){
+  $("#rules").innerHTML=RULES.map(r=>`<li>${esc(r[0])} <span class="src">${esc(r[1])}</span></li>`).join("");
+  $("#verweis").innerHTML=VERWEIS.map(v=>`<li><b>${esc(v[0])}:</b> ${esc(v[1])}</li>`).join("");
+  $("#abgleich").innerHTML=ABGLEICH.map(r=>`<li>${esc(r[0])} <span class="src">${esc(r[1])}</span></li>`).join("");
+  $("#srcs").innerHTML=SRC.map(s=>`<li><b>${esc(s[0])}</b><span>${esc(s[1])}${s[2]?` <a href="${esc(s[2])}" target="_blank" rel="noopener">Öffnen</a>`:""}</span></li>`).join("");
+}
+function renderAll(){
+  const all=allEx();
+  const n=k=>all.filter(e=>e.kind===k).length;
+  $("#sub").textContent=`${n("ex")} Übungen, ${n("kanon")} Kanons, ${n("zb")} Zungenbrecher, ${allPlans().length} Abläufe`;
+  renderPlans();renderFilters();renderEx();renderKZ();
+  const tc=trashCount();
+  for(const b of document.querySelectorAll("[data-trash]")){b.hidden=!tc;b.textContent=`Papierkorb (${tc})`}
+}
+
+const VIEWS=["ablaeufe","uebungen","kanons","regeln"];
+function route(){
+  const h=location.hash.slice(1);
+  const v=VIEWS.includes(h)?h:"ablaeufe";
+  for(const x of VIEWS)$("#v-"+x).hidden=x!==v;
+  document.querySelectorAll(".tabs a").forEach(a=>{if(a.dataset.v===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+}
+function saveUi(){try{localStorage.setItem(LSU,JSON.stringify({ph:F.ph,fuer:F.fuer,fav:F.fav}))}catch(e){}}
+function arm(b,fn,txt){
+  if(b.hasAttribute("data-armed")){fn();return}
+  b.setAttribute("data-armed","");b.dataset.t=b.textContent;b.textContent=txt||"Wirklich löschen?";
+  setTimeout(()=>{if(b.isConnected&&b.hasAttribute("data-armed")){b.removeAttribute("data-armed");b.textContent=b.dataset.t}},4000);
+}
+
+let lastFocus=null;
+function showModal(html,label){lastFocus=document.activeElement;$("#panel").innerHTML=html;$("#panel").setAttribute("aria-label",label);$("#modal").hidden=false;lockScroll(true);const f=$("#panel").querySelector("input,select,textarea");if(f)f.focus()}
+function closeModal(){stopAll();$("#modal").hidden=true;$("#panel").innerHTML="";if($("#run").hidden)lockScroll(false);if(lastFocus&&lastFocus.isConnected)lastFocus.focus()}
+
+/* entries: new, edit, copy */
+let EF=null;
+const isLive=nr=>allEx().some(e=>e.nr===nr);
+function prefixFor(kind,ph){return kind==="kanon"?"KA":kind==="zb"?"ZB":LET[ph-1]}
+function nextNr(kind,ph){
+  const L=prefixFor(kind,ph);let mx=0;
+  const ids=BASE.map(b=>b.nr).concat(S.own.map(o=>o.nr),S.trash.filter(t=>t.type==="ex").map(t=>t.rec.nr));
+  for(const id of ids){if(id.indexOf(L)===0){const rest=id.slice(L.length);if(/^\d+$/.test(rest))mx=Math.max(mx,parseInt(rest,10))}}
+  return L+String(mx+1).padStart(2,"0");
+}
+function renameNr(a,b){
+  S.favs=S.favs.map(x=>x===a?b:x);
+  if(S.notes[a]){S.notes[b]=S.notes[a];delete S.notes[a]}
+  const fix=p=>{for(const st of p.steps)if(st.nr===a)st.nr=b};
+  S.plans.forEach(fix);Object.values(S.planEdits).forEach(fix);
+}
+function blankRec(k){return {nr:"",kind:k,ph:k==="kanon"?7:k==="zb"?6:(F.ph||1),name:"",fuer:"Beide",min:1,txt:"",anl:"",ziel:"",lage:"",vari:"",q:"Eigene",lang:"",nts:[],canV:k==="kanon"?3:0,canE:4}}
+function openExForm(nr,mode,kind){
+  let rec,isBase=false;
+  if(mode==="new")rec=blankRec(KINDOK.includes(kind)?kind:"ex");
+  else{
+    const e=exBy(nr);if(!e)return;
+    rec=JSON.parse(JSON.stringify(itemRec(e)));
+    if(mode==="copy"){rec.nr="";rec.name=(rec.name+" Kopie").slice(0,200)}
+    else isBase=!!e.base;
+  }
+  EF={...rec,mode:mode,isBase:isBase,orig:mode==="edit"?nr:"",from:mode==="copy"?nr:""};
+  drawExForm(true);
+}
+function ntfHTML(n,i){
+  return `<div class="ntf"><div class="nt-head"><span class="nt-t">Noten ${i+1}</span><button class="sbtn warn" data-act="rmnt" data-i="${i}">Entfernen</button></div>
+<label for="nf-t-${i}">Titel</label><input id="nf-t-${i}" data-nf="t" data-i="${i}" value="${esc(n.t)}" placeholder="z. B. Dur-Dreiklang">
+<label for="nf-a-${i}">ABC-Noten</label><textarea id="nf-a-${i}" class="code" rows="6" data-nf="abc" data-i="${i}" placeholder="X:1&#10;M:4/4&#10;L:1/4&#10;K:C&#10;C D E F | G4 |]&#10;w: do re mi fa so">${esc(n.abc)}</textarea>
+<label class="chk"><input type="checkbox" data-nf="np" data-i="${i}"${n.np?" checked":""}>Nur Rhythmus, ohne Wiedergabe</label>
+<div class="nt" data-k="__pv${i}" hidden><div class="nt-head"><span class="nt-t">Vorschau</span><div class="nt-ctl"><button class="sbtn" data-act="nplay"${n.np?" hidden":""}>Anhören</button></div></div><div class="score"></div></div></div>`;
+}
+function drawExForm(first){
+  const fld=(id,lab,val,ta)=>`<div><label for="${id}">${lab}</label>${ta?`<textarea id="${id}" rows="3">${esc(val)}</textarea>`:`<input id="${id}" value="${esc(val)}">`}</div>`;
+  const title=EF.mode==="edit"?esc(EF.orig)+" bearbeiten":EF.mode==="copy"?"Kopie von "+esc(EF.from):"Neuer Eintrag";
+  const html=`<h2>${title}</h2>
+${EF.mode==="edit"&&EF.isBase?`<p class="help">Mitgelieferter Eintrag. Die Nr bleibt gleich, damit deine Abläufe weiter passen. Das Original lässt sich jederzeit wiederherstellen.</p>`:""}
+${EF.mode==="copy"?`<p class="help">Die Kopie bekommt beim Speichern eine neue Nr. Das Original bleibt unverändert.</p>`:""}
+<div class="f2"><div><label for="ef-kind">Typ</label><select id="ef-kind">${Object.keys(KINDS).map(x=>`<option value="${x}"${EF.kind===x?" selected":""}>${KINDS[x]}</option>`).join("")}</select></div>
+<div><label for="ef-ph">Phase</label><select id="ef-ph">${PH.map((n,i)=>`<option value="${i+1}"${EF.ph===i+1?" selected":""}>${i+1} ${esc(n)}</option>`).join("")}</select></div>
+<div><label for="ef-fuer">Für</label><select id="ef-fuer">${["Beide","Chor","Solo"].map(f=>`<option${EF.fuer===f?" selected":""}>${f}</option>`).join("")}</select></div>
+<div><label for="ef-min">Minuten</label><input id="ef-min" type="number" min="0" step="0.5" inputmode="decimal" value="${esc(EF.min)}"></div></div>
+<div class="f2">${fld("ef-name","Name",EF.name)}${fld("ef-lang","Sprache, optional",EF.lang)}</div>
+${fld("ef-txt","Text, bei Kanons und Zungenbrechern",EF.txt)}${fld("ef-anl","Anleitung",EF.anl,1)}${fld("ef-ziel","Ziel",EF.ziel)}
+<div class="f2">${fld("ef-lage","Lage, Tonraum",EF.lage)}${fld("ef-q","Quelle",EF.q)}</div>
+${fld("ef-vari","Steigern, variieren",EF.vari,1)}
+<h3 class="trh">Noten</h3>
+<p class="help">ABC-Format, zum Beispiel von abcnotation.com. Liedtext unter die Noten mit einer Zeile, die mit w: beginnt.</p>
+${EF.nts.map(ntfHTML).join("")}
+<button class="btn" data-act="addnt" style="margin-top:6px">Noten hinzufügen</button>
+<div class="f2" style="margin-top:12px"><div><label for="ef-canv">Kanon: Gruppen</label><input id="ef-canv" type="number" min="0" max="6" step="1" value="${esc(EF.canV)}"></div><div><label for="ef-cane">Einsatz nach Vierteln</label><input id="ef-cane" type="number" min="1" max="64" step="1" value="${esc(EF.canE)}"></div></div>
+<p class="err" id="ef-err"></p>
+<div class="row"><button class="btn pri" data-act="saveex">Speichern</button><button class="btn" data-act="closemodal">Abbrechen</button></div>
+${EF.mode==="edit"?`<div class="row acts"><button class="btn" data-act="excopy">Kopieren</button><button class="btn warn" data-act="exdel">Löschen</button>${EF.isBase&&S.edits[EF.orig]?`<button class="btn warn" data-act="resetex">Original wiederherstellen</button>`:""}</div>`:""}`;
+  if(first)showModal(html,EF.mode==="edit"?"Eintrag bearbeiten":"Neuer Eintrag");else{const y=$("#modal").scrollTop;$("#panel").innerHTML=html;$("#modal").scrollTop=y}
+  previewAll();
+}
+function collectEF(){
+  const v=id=>{const el=$("#"+id);return el?el.value:""};
+  Object.assign(EF,{kind:KINDOK.includes(v("ef-kind"))?v("ef-kind"):"ex",ph:clampInt(v("ef-ph"),1,9,1),fuer:["Chor","Solo","Beide"].includes(v("ef-fuer"))?v("ef-fuer"):"Beide",min:Math.max(0,parseFloat(String(v("ef-min")).replace(",","."))||0),name:v("ef-name"),lang:v("ef-lang"),txt:v("ef-txt"),anl:v("ef-anl"),ziel:v("ef-ziel"),lage:v("ef-lage"),q:v("ef-q"),vari:v("ef-vari"),canV:clampInt(v("ef-canv"),0,6,0),canE:clampInt(v("ef-cane"),1,64,4)});
+}
+let pvT=null;
+function previewNt(i){
+  const n=EF&&EF.nts[i];const box=document.querySelector('.nt[data-k="__pv'+i+'"]');if(!n||!box)return;
+  const abc=(n.abc||"").trim();box.hidden=!abc;
+  const pb=box.querySelector('[data-act="nplay"]');if(pb)pb.hidden=!!n.np;
+  const cv=clampInt(($("#ef-canv")||{}).value,0,6,0),ce=clampInt(($("#ef-cane")||{}).value,1,64,4);
+  NT.set("__pv"+i,{abc:abc,can:cv>1?{v:cv,e:ce}:null,np:!!n.np,tr:0,p:null});
+  if(abc){const sc=box.querySelector(".score");delete sc.dataset.w;drawScore(sc)}
+}
+function previewAll(){if(EF)EF.nts.forEach((n,i)=>previewNt(i))}
+function saveEx(){
+  collectEF();
+  const name=EF.name.trim();
+  if(!name){$("#ef-err").textContent="Bitte einen Namen eingeben.";$("#ef-name").focus();return}
+  const nts=EF.nts.map(n=>({t:(n.t||"").trim().slice(0,120)||"Noten",abc:(n.abc||"").trim().slice(0,6000),np:!!n.np})).filter(n=>n.abc).slice(0,8);
+  const body={kind:EF.kind,ph:EF.ph,name:name.slice(0,200),fuer:EF.fuer,min:EF.min,txt:EF.txt.trim().slice(0,600),anl:EF.anl.trim(),ziel:EF.ziel.trim(),lage:EF.lage.trim().slice(0,200),vari:EF.vari.trim(),q:EF.q.trim().slice(0,200)||"Eigene",lang:EF.lang.trim().slice(0,40),nts:nts,canV:EF.canV,canE:EF.canE};
+  if(EF.mode==="edit"&&EF.isBase){S.edits[EF.orig]={nr:EF.orig,...body}}
+  else if(EF.mode==="edit"){
+    const old=EF.orig,i=S.own.findIndex(x=>x.nr===old);
+    let nr=old;
+    if(i>=0&&prefixFor(S.own[i].kind,S.own[i].ph)!==prefixFor(body.kind,body.ph))nr=nextNr(body.kind,body.ph);
+    const rec={nr:nr,...body};
+    if(i>=0)S.own[i]=rec;else S.own.push(rec);
+    if(nr!==old)renameNr(old,nr);
+  }
+  else S.own.push({nr:nextNr(body.kind,body.ph),...body});
+  persist();closeModal();renderAll();
+}
+function delEx(nr){
+  if(BASEIDS.has(nr)){if(!S.hidden.includes(nr))S.hidden.push(nr)}
+  else{const o=S.own.find(x=>x.nr===nr);if(!o)return;S.own=S.own.filter(x=>x.nr!==nr);S.trash.push({type:"ex",at:Date.now(),rec:o});S.trash=S.trash.slice(-50)}
+  persist();renderAll();
+}
+
+/* plan editor */
+let ED=null;
+function optsFor(nr){
+  const ex=allEx();
+  let h="";
+  if(!ex.some(e=>e.nr===nr)){const e=exBy(nr);h=`<option value="${esc(nr)}" selected>${esc(nr)} ${e?esc(e.name)+", im Papierkorb":"fehlt"}</option>`}
+  const grp=(label,list)=>list.length?`<optgroup label="${esc(label)}">`+list.map(e=>`<option value="${esc(e.nr)}"${e.nr===nr?" selected":""}>${esc(e.nr)} ${esc(e.name)}</option>`).join("")+"</optgroup>":"";
+  for(let i=1;i<=9;i++)h+=grp(PH[i-1],ex.filter(e=>e.kind==="ex"&&e.ph===i));
+  h+=grp("Kanons",ex.filter(e=>e.kind==="kanon"));
+  h+=grp("Zungenbrecher",ex.filter(e=>e.kind==="zb"));
+  return h;
+}
+function openEditor(id,mode){
+  const p=id?allPlans().find(x=>x.id===id):null;
+  if(id&&!p)return;
+  const uid="u"+Date.now().toString(36);
+  if(!p){const ex=allEx();const pick=n=>isLive(n)?n:(ex[0]?ex[0].nr:n);ED={id:uid,name:"",desc:"",steps:[{nr:pick("K04"),min:1,hint:""},{nr:pick("A02"),min:1,hint:""},{nr:pick("S02"),min:1,hint:""}],mode:"new",pre:false}}
+  else ED={id:mode==="copy"?uid:p.id,name:mode==="copy"?(p.name+" Kopie").slice(0,120):p.name,desc:p.desc||"",steps:p.steps.map(s=>({nr:s.nr,min:s.min,hint:s.hint||""})),mode:mode,pre:mode==="edit"&&!!p.pre};
+  drawEditor(true);
+}
+function drawEditor(first){
+  const t=total(ED);
+  const title=ED.mode==="new"?"Neuer Ablauf":ED.mode==="copy"?"Kopie":"Ablauf bearbeiten";
+  const html=`<h2>${title}</h2>
+${ED.mode==="copy"?`<p class="help">Speichern legt die Kopie als eigenen Ablauf an. Das Original bleibt unverändert.</p>`:""}
+${ED.pre?`<p class="help">Mitgelieferte Vorlage. Deine Änderungen ersetzen sie, das Original lässt sich jederzeit wiederherstellen.</p>`:""}
+<label for="ed-name">Name</label><input id="ed-name" value="${esc(ED.name)}" placeholder="z. B. Chor X Donnerstag">
+<label for="ed-desc" style="margin-top:10px">Beschreibung, optional</label><textarea id="ed-desc" rows="2">${esc(ED.desc)}</textarea>
+<div style="margin-top:14px">${ED.steps.map((s,i)=>`<div class="edrow"><span class="ix">${i+1}</span>
+<select data-ed="nr" data-i="${i}" aria-label="Übung für Schritt ${i+1}">${optsFor(s.nr)}</select>
+<input type="number" min="0" step="0.5" inputmode="decimal" data-ed="min" data-i="${i}" value="${esc(s.min)}" aria-label="Minuten für Schritt ${i+1}">
+<div class="row"><button class="icon" data-act="up" data-i="${i}" aria-label="Schritt nach oben"${i===0?" disabled":""}>↑</button><button class="icon" data-act="down" data-i="${i}" aria-label="Schritt nach unten"${i===ED.steps.length-1?" disabled":""}>↓</button><button class="icon" data-act="rm" data-i="${i}" aria-label="Schritt entfernen">×</button></div>
+<input class="hn" data-ed="hint" data-i="${i}" value="${esc(s.hint)}" placeholder="Hinweis für diesen Schritt" aria-label="Hinweis für Schritt ${i+1}"></div>`).join("")}</div>
+<button class="btn" data-act="addstep" style="margin-top:10px">Schritt hinzufügen</button>
+<p class="edtot" id="ed-tot">Gesamt: ${fm(t)} Minuten</p>
+<p class="err" id="ed-err"></p>
+<div class="row"><button class="btn pri" data-act="saveplan">Speichern</button><button class="btn" data-act="closemodal">Abbrechen</button></div>
+${ED.mode==="edit"?`<div class="row acts"><button class="btn" data-act="plcopy">Kopieren</button><button class="btn warn" data-act="pldel">Löschen</button>${ED.pre&&S.planEdits[ED.id]?`<button class="btn warn" data-act="resetplan">Original wiederherstellen</button>`:""}</div>`:""}`;
+  if(first)showModal(html,title);else{const y=$("#modal").scrollTop;$("#panel").innerHTML=html;$("#modal").scrollTop=y}
+}
+function savePlan(){
+  ED.name=$("#ed-name").value.trim();ED.desc=$("#ed-desc").value.trim();
+  if(!ED.name){$("#ed-err").textContent="Bitte einen Namen eingeben.";$("#ed-name").focus();return}
+  if(!ED.steps.length){$("#ed-err").textContent="Bitte mindestens einen Schritt anlegen.";return}
+  const rec={id:ED.id,name:ED.name.slice(0,120),desc:ED.desc.slice(0,400),steps:ED.steps.map(s=>({nr:s.nr,min:Math.max(0,+s.min||0),hint:(s.hint||"").trim()}))};
+  if(ED.pre)S.planEdits[rec.id]=rec;
+  else{const i=S.plans.findIndex(p=>p.id===rec.id);if(i>=0)S.plans[i]=rec;else S.plans.push(rec)}
+  persist();closeModal();renderAll();
+}
+function delPlan(id){
+  if(PREIDS.has(id)){if(!S.hiddenPlans.includes(id))S.hiddenPlans.push(id)}
+  else{const p=S.plans.find(x=>x.id===id);if(!p)return;S.plans=S.plans.filter(x=>x.id!==id);S.trash.push({type:"plan",at:Date.now(),rec:p});S.trash=S.trash.slice(-50)}
+  persist();renderAll();
+}
+
+/* trash */
+const dstr=t=>{try{return t?new Date(t).toLocaleDateString("de-AT"):""}catch(e){return ""}};
+function trashRows(){
+  const ex=[],pl=[];
+  for(const nr of S.hidden){const e=exBy(nr);ex.push({k:"h",id:nr,t:nr+" "+(e?e.name:""),s:(e?KINDS[e.kind]:"")+", mitgeliefert"+(S.edits[nr]?", mit deinen Änderungen":"")})}
+  S.trash.forEach((x,i)=>{if(x.type==="ex")ex.push({k:"t",id:String(i),t:x.rec.nr+" "+x.rec.name,s:KINDS[x.rec.kind]+", eigener Eintrag"+(x.at?", gelöscht am "+dstr(x.at):"")})});
+  for(const id of S.hiddenPlans){const p=PRE.find(x=>x.id===id);pl.push({k:"hp",id:id,t:(S.planEdits[id]||p||{name:id}).name,s:"Vorlage"+(S.planEdits[id]?", mit deinen Änderungen":"")})}
+  S.trash.forEach((x,i)=>{if(x.type==="plan")pl.push({k:"t",id:String(i),t:x.rec.name,s:"Eigener Ablauf"+(x.at?", gelöscht am "+dstr(x.at):"")})});
+  return {ex:ex,pl:pl};
+}
+function drawTrash(first){
+  const r=trashRows(),own=S.trash.length;
+  const li=x=>`<li><div>${esc(x.t)}<small>${esc(x.s)}</small></div><button class="sbtn" data-act="restore" data-k="${x.k}" data-id="${esc(x.id)}">Wiederherstellen</button></li>`;
+  const html=`<h2>Papierkorb</h2>
+${r.ex.length?`<h3 class="trh">Übungen, Kanons, Zungenbrecher</h3><ul class="trl">${r.ex.map(li).join("")}</ul>`:""}
+${r.pl.length?`<h3 class="trh">Abläufe</h3><ul class="trl">${r.pl.map(li).join("")}</ul>`:""}
+${r.ex.length+r.pl.length?"":`<p class="help">Der Papierkorb ist leer.</p>`}
+<p class="help">Mitgelieferte Einträge und Vorlagen bleiben hier, bis du sie wiederherstellst. Eigene Einträge kannst du endgültig löschen.</p>
+<div class="row" style="margin-top:12px">${r.ex.length+r.pl.length?`<button class="btn pri" data-act="restoreall">Alle wiederherstellen</button>`:""}${own?`<button class="btn warn" data-act="purge">Eigene endgültig löschen</button>`:""}<button class="btn" data-act="closemodal">Schließen</button></div>`;
+  if(first)showModal(html,"Papierkorb");else{const y=$("#modal").scrollTop;$("#panel").innerHTML=html;$("#modal").scrollTop=y}
+}
+function restoreOne(k,id){
+  if(k==="h")S.hidden=S.hidden.filter(x=>x!==id);
+  else if(k==="hp")S.hiddenPlans=S.hiddenPlans.filter(x=>x!==id);
+  else if(k==="t"){
+    const i=+id,x=S.trash[i];if(!x)return;
+    S.trash.splice(i,1);
+    if(x.type==="ex"){const r=x.rec;if(BASEIDS.has(r.nr)||S.own.some(o=>o.nr===r.nr))r.nr=nextNr(r.kind,r.ph);S.own.push(r)}
+    else{const p=x.rec;if(PREIDS.has(p.id)||S.plans.some(o=>o.id===p.id))p.id="u"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);S.plans.push(p)}
+  }
+}
+function afterTrash(){persist();renderAll();if(trashCount())drawTrash(false);else closeModal()}
+
+/* export, import */
+let xpURL=null,xpFile=null;
+function openExport(){
+  const d=new Date(),day=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const txt=JSON.stringify({app:"einsingen",version:1,exported:d.toISOString(),data:S},null,1);
+  const fn="einsingen-daten-"+day+".json";
+  xpFile=null;
+  try{const f=new File([txt],fn,{type:"application/json"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))xpFile=f}catch(e){xpFile=null}
+  try{if(xpURL)URL.revokeObjectURL(xpURL);xpURL=URL.createObjectURL(new Blob([txt],{type:"application/json"}))}catch(e){xpURL=null}
+  const fileBtn=xpFile?`<button class="btn pri" data-act="xshare">Teilen oder in Dateien sichern</button>`:(xpURL?`<a class="btn pri" href="${xpURL}" download="${fn}">Als Datei speichern</a>`:"");
+  showModal(`<h2>Daten exportieren</h2>
+<p class="help">${xpFile?"Teilen öffnet das Menü zum Sichern: In Dateien sichern, per AirDrop an ein anderes Gerät oder per Mail.":"Als Datei speichern legt eine Sicherungsdatei an."} Oder den Text kopieren und zum Beispiel in einer Notiz ablegen.</p>
+<label for="xp">Deine Daten</label><textarea id="xp" class="code" rows="8" readonly>${esc(txt)}</textarea>
+<p class="help" id="xp-msg" aria-live="polite"></p>
+<div class="row" style="margin-top:12px">${fileBtn}<button class="btn" data-act="xcopy">Text kopieren</button><button class="btn" data-act="closemodal">Schließen</button></div>`,"Daten exportieren");
+}
+function shareExport(b){
+  const m=$("#xp-msg");if(!xpFile)return;
+  let pr;try{pr=navigator.share({files:[xpFile]})}catch(e){pr=Promise.reject(e)}
+  pr.then(()=>{m.textContent="Erledigt."},e=>{m.textContent=e&&e.name==="AbortError"?"Abgebrochen.":"Teilen geht hier nicht. Bitte Text kopieren.";if(!(e&&e.name==="AbortError"))b.hidden=true});
+}
+function copyExport(b){
+  const ta=$("#xp");if(!ta)return;
+  const ok=()=>{b.textContent="Kopiert";setTimeout(()=>{if(b.isConnected)b.textContent="Text kopieren"},2000)};
+  const old=()=>{try{ta.focus();ta.select();if(document.execCommand("copy"))ok();else b.textContent="Bitte von Hand kopieren"}catch(e){b.textContent="Bitte von Hand kopieren"}};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(ta.value).then(ok,old);else old()}catch(e){old()}
+}
+function openImport(){
+  showModal(`<h2>Daten importieren</h2>
+<label for="ip-file">Sicherungsdatei wählen</label><input type="file" id="ip-file" accept=".json,application/json,text/plain">
+<label for="ip" style="margin-top:10px">oder den exportierten Text hier einfügen</label><textarea id="ip" class="code" rows="8"></textarea>
+<p class="help">Der Import ersetzt alle Daten in dieser Version: Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und Papierkorb. Exportiere vorher, wenn du den aktuellen Stand behalten willst.</p>
+<p class="err" id="ip-err"></p>
+<div class="row"><button class="btn pri" data-act="doimport">Importieren</button><button class="btn" data-act="closemodal">Abbrechen</button></div>`,"Daten importieren");
+}
+function doImport(b){
+  const raw=$("#ip").value.trim();
+  if(!raw){$("#ip-err").textContent="Bitte eine Datei wählen oder Text einfügen.";return}
+  let d=null;try{d=JSON.parse(raw)}catch(e){}
+  if(d&&typeof d==="object"&&d.app==="einsingen"&&d.data)d=d.data;
+  const keys=["favs","notes","own","plans","edits","planEdits","hidden","hiddenPlans","trash"];
+  if(!d||typeof d!=="object"||Array.isArray(d)||!keys.some(k=>k in d)){$("#ip-err").textContent="Das ist keine Sicherung dieser App.";return}
+  const n=norm(d);
+  arm(b,()=>{S=n;persist();closeModal();renderAll()},"Daten ersetzen?");
+}
+
+/* run */
+let R=null,tickT=null,wl=null;
+const CIRC=565.49;
+async function wake(){try{if(!wl&&navigator.wakeLock){wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null})}}catch(e){}}
+function openRun(id){
+  const p=allPlans().find(x=>x.id===id);
+  if(!p||!p.steps.length)return;
+  R={p:JSON.parse(JSON.stringify(p)),i:0,dur:0,left:0,running:false,endAt:0,done:false};
+  $("#run").hidden=false;lockScroll(true);
+  setStep(0);
+  clearInterval(tickT);tickT=setInterval(tick,200);
+  $("#b-play").focus();
+}
+function closeRun(){
+  stopAll();R=null;clearInterval(tickT);tickT=null;
+  $("#run").hidden=true;lockScroll(false);
+  try{if(wl)wl.release()}catch(e){}
+  try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen()}catch(e){}
+}
+function setStep(i){R.i=i;const s=R.p.steps[i];R.dur=Math.round((+s.min||0)*60000);R.left=R.dur;R.running=false;R.done=false;drawRun()}
+function drawRun(){
+  stopAll();
+  const s=R.p.steps[R.i];
+  const e=exBy(s.nr)||{nr:s.nr,ph:1,kind:"ex",name:"Übung "+s.nr+" fehlt",anl:"Diese Übung gibt es nicht mehr. Im Ablauf einen anderen Schritt wählen.",ziel:"",vari:"",fuer:"",txt:"",nt:[],can:null};
+  $("#run").style.setProperty("--c","var(--p"+e.ph+")");
+  $("#run-title").textContent=R.p.name;
+  $("#run-count").textContent=`Schritt ${R.i+1} von ${R.p.steps.length}`;
+  const pill=e.kind==="ex"?esc(PH[e.ph-1]):esc(KINDS[e.kind]);
+  $("#run-body").innerHTML=`<div class="ex-top" style="--c:var(--p${e.ph})"><span class="nr">${esc(e.nr)}</span><span class="pill"><i class="dot"></i>${pill}</span>${e.fuer?`<span class="meta">${esc(e.fuer)}</span>`:""}</div>
+<h3>${esc(e.name)}</h3>
+${s.hint?`<p class="hint">${esc(s.hint)}</p>`:""}
+${e.txt?`<p class="zbtxt">${esc(e.txt)}</p>`:""}
+<p class="anl">${esc(e.anl)}</p>
+${e.ziel?`<p class="ziel"><b>Ziel:</b> ${esc(e.ziel)}</p>`:""}
+${e.vari?`<p class="ziel"><b>Steigern:</b> ${esc(e.vari)}</p>`:""}
+${e.nt&&e.nt.length?ntHTML(e,0):""}`;
+  watchScores($("#run-body"));
+  $("#run-strip").innerHTML=R.p.steps.map((x,j)=>{const xe=exBy(x.nr);return `<span class="seg ${j<R.i?"past":j===R.i?"now":""}" style="flex-grow:${Math.max(+x.min||0,.15)};background:var(--p${xe?xe.ph:1})"></span>`}).join("");
+  $("#b-prev").disabled=R.i===0;
+  $("#b-next").textContent=R.i===R.p.steps.length-1?"Fertig":"Weiter";
+  clock();
+}
+function clock(){
+  if(!R)return;
+  const l=Math.max(0,R.left);
+  $("#clock").textContent=R.dur?clk(l):"frei";
+  $("#clock-l").textContent=R.dur?(R.done?"Zeit um":R.running?"läuft":"bereit"):"ohne Zeit";
+  $("#arc").style.strokeDashoffset=String(R.dur?CIRC*(1-l/R.dur):0);
+  $("#b-play").textContent=R.running?"Pause":(R.done?"Nochmal":"Start");
+  $("#b-play").disabled=!R.dur;
+  const rest=l+R.p.steps.slice(R.i+1).reduce((a,x)=>a+(+x.min||0)*60000,0);
+  $("#run-rest").textContent=`Noch ${clk(rest)} Minuten im ganzen Ablauf`;
+  $("#run").classList.toggle("done",R.done);
+}
+function play(){
+  if(!R||!R.dur)return;
+  ac();
+  if(R.running){R.left=Math.max(0,R.endAt-Date.now());R.running=false}
+  else{if(R.left<=0){R.left=R.dur;R.done=false}R.endAt=Date.now()+R.left;R.running=true;wake()}
+  clock();
+}
+function tick(){
+  if(!R||!R.running)return;
+  R.left=R.endAt-Date.now();
+  if(R.left<=0){
+    R.left=0;R.running=false;R.done=true;
+    if($("#run-sound").checked)tone(.5,.25);
+    if($("#run-auto").checked&&R.i<R.p.steps.length-1){setStep(R.i+1);play();return}
+  }
+  clock();
+}
+function step(d){
+  if(!R)return;
+  const j=R.i+d;
+  if(j<0)return;
+  if(j>=R.p.steps.length){closeRun();return}
+  const was=R.running;setStep(j);if(was)play();
+}
+
+/* events */
+document.addEventListener("click",ev=>{
+  const b=ev.target.closest("[data-act]");
+  if(!b){if(ev.target===$("#modal"))closeModal();return}
+  const a=b.dataset.act;
+  if(a==="nplay"||a==="nrise"||a==="ncanon"||a==="ntr"){ntAction(a,b);return}
+  if(a==="prof"){PROF=b.dataset.p;try{localStorage.setItem(LSP,PROF)}catch(e){}applyProfil(PROF);return}
+  if(a==="start")openRun(b.dataset.id);
+  else if(a==="newplan")openEditor(null,"new");
+  else if(a==="editplan")openEditor(b.dataset.id,"edit");
+  else if(a==="plcopy"){ED.name=$("#ed-name").value;ED.desc=$("#ed-desc").value;ED.mode="copy";ED.pre=false;ED.id="u"+Date.now().toString(36);ED.name=(ED.name+" Kopie").slice(0,120);drawEditor(false);$("#modal").scrollTop=0;$("#ed-name").focus()}
+  else if(a==="pldel")arm(b,()=>{delPlan(ED.id);closeModal()},"In den Papierkorb?");
+  else if(a==="resetplan")arm(b,()=>{delete S.planEdits[ED.id];persist();closeModal();renderAll()},"Änderungen verwerfen?");
+  else if(a==="newex")openExForm(null,"new","ex");
+  else if(a==="newka")openExForm(null,"new","kanon");
+  else if(a==="newzb")openExForm(null,"new","zb");
+  else if(a==="editex")openExForm(b.dataset.nr,"edit");
+  else if(a==="excopy"){collectEF();EF.mode="copy";EF.from=EF.orig;EF.orig="";EF.isBase=false;EF.nr="";EF.name=(EF.name+" Kopie").slice(0,200);drawExForm(false);$("#modal").scrollTop=0;$("#ef-name").focus()}
+  else if(a==="exdel")arm(b,()=>{delEx(EF.orig);closeModal()},"In den Papierkorb?");
+  else if(a==="export")openExport();
+  else if(a==="xcopy")copyExport(b);
+  else if(a==="xshare")shareExport(b);
+  else if(a==="reload")location.reload();
+  else if(a==="noinstall"){$("#install").hidden=true;try{localStorage.setItem(LSI,"1")}catch(e){}}
+  else if(a==="import")openImport();
+  else if(a==="doimport")doImport(b);
+  else if(a==="resetex")arm(b,()=>{delete S.edits[EF.orig];persist();closeModal();renderAll()},"Änderungen verwerfen?");
+  else if(a==="addnt"){collectEF();if(EF.nts.length>=8)return;EF.nts.push({t:"",abc:"",np:false});drawExForm(false);const f=document.getElementById("nf-a-"+(EF.nts.length-1));if(f)f.focus()}
+  else if(a==="rmnt")arm(b,()=>{collectEF();EF.nts.splice(+b.dataset.i,1);drawExForm(false)},"Wirklich entfernen?");
+  else if(a==="trash")drawTrash(true);
+  else if(a==="restore"){restoreOne(b.dataset.k,b.dataset.id);afterTrash()}
+  else if(a==="restoreall"){for(let i=S.trash.length-1;i>=0;i--)restoreOne("t",String(i));S.hidden=[];S.hiddenPlans=[];afterTrash()}
+  else if(a==="purge")arm(b,()=>{const gone=S.trash.filter(x=>x.type==="ex").map(x=>x.rec.nr);S.trash=[];S.favs=S.favs.filter(x=>!gone.includes(x)||isLive(x));for(const n of gone)if(!isLive(n))delete S.notes[n];afterTrash()},"Endgültig löschen?");
+  else if(a==="saveex")saveEx();
+  else if(a==="saveplan")savePlan();
+  else if(a==="closemodal")closeModal();
+  else if(a==="fav"){const n=b.dataset.nr;const on=!S.favs.includes(n);S.favs=on?S.favs.concat(n):S.favs.filter(x=>x!==n);persist();if(F.fav){renderFilters();renderEx()}else{for(const s of document.querySelectorAll('.star[data-nr="'+CSS.escape(n)+'"]'))s.setAttribute("aria-pressed",String(on));renderFilters()}}
+  else if(a==="fuer"){F.fuer=b.dataset.f;saveUi();renderFilters();renderEx()}
+  else if(a==="favf"){F.fav=!F.fav;saveUi();renderFilters();renderEx()}
+  else if(a==="ph"){F.ph=parseInt(b.dataset.p,10)||0;saveUi();renderFilters();renderEx()}
+  else if(a==="addstep"){const last=ED.steps[ED.steps.length-1];const e=allEx()[0];if(!last&&!e)return;ED.name=$("#ed-name").value;ED.desc=$("#ed-desc").value;ED.steps.push({nr:last?last.nr:e.nr,min:last?last.min:e.min,hint:""});drawEditor(false)}
+  else if(a==="up"||a==="down"||a==="rm"){const i=+b.dataset.i;ED.name=$("#ed-name").value;ED.desc=$("#ed-desc").value;if(a==="rm")ED.steps.splice(i,1);else{const j=a==="up"?i-1:i+1;if(j>=0&&j<ED.steps.length){const t=ED.steps[i];ED.steps[i]=ED.steps[j];ED.steps[j]=t}}drawEditor(false)}
+  else if(a==="play")play();
+  else if(a==="next")step(1);
+  else if(a==="prev")step(-1);
+  else if(a==="closerun")closeRun();
+  else if(a==="tone")tone(1.6,.3);
+  else if(a==="fs"){try{const el=document.documentElement,fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else{const r=(el.requestFullscreen||el.webkitRequestFullscreen).call(el);if(r&&r.catch)r.catch(()=>{})}}catch(e){}}
+});
+document.addEventListener("input",ev=>{
+  const t=ev.target;
+  if(t.id==="q"){F.q=t.value;renderEx();return}
+  if(t.dataset.nf&&EF){const n=EF.nts[+t.dataset.i];if(!n)return;if(t.dataset.nf==="t")n.t=t.value;else if(t.dataset.nf==="abc"){n.abc=t.value;const i=+t.dataset.i;clearTimeout(pvT);pvT=setTimeout(()=>previewNt(i),400)}return}
+  if(t.id==="ef-canv"||t.id==="ef-cane"){clearTimeout(pvT);pvT=setTimeout(previewAll,400);return}
+  if(t.dataset.note!==undefined){const n=t.dataset.note;if(t.value)S.notes[n]=t.value.slice(0,4000);else delete S.notes[n];persist();return}
+  if(t.dataset.ed&&ED){const s=ED.steps[+t.dataset.i];if(!s)return;
+    if(t.dataset.ed==="nr"){s.nr=t.value;const e=exBy(s.nr);if(e&&!(+s.min))s.min=e.min}
+    else if(t.dataset.ed==="min")s.min=Math.max(0,parseFloat(String(t.value).replace(",","."))||0);
+    else s.hint=t.value;
+    const tt=$("#ed-tot");if(tt)tt.textContent=`Gesamt: ${fm(total(ED))} Minuten`;}
+});
+document.addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.id==="ef-kind"){const k=t.value;const ph=$("#ef-ph");if(k==="kanon")ph.value="7";else if(k==="zb")ph.value="6";if(k==="kanon"&&clampInt($("#ef-canv").value,0,6,0)<2)$("#ef-canv").value="3";previewAll()}
+  else if(t.id==="ip-file"&&t.files&&t.files[0]){const f=t.files[0];if(f.size>5e6){$("#ip-err").textContent="Die Datei ist zu groß.";return}const r=new FileReader();r.onload=()=>{$("#ip").value=String(r.result||"");$("#ip-err").textContent=""};r.onerror=()=>{$("#ip-err").textContent="Die Datei ließ sich nicht lesen."};r.readAsText(f)}
+  else if(t.dataset.nf==="np"&&EF){const n=EF.nts[+t.dataset.i];if(n){n.np=t.checked;previewNt(+t.dataset.i)}}
+});
+document.addEventListener("keydown",ev=>{
+  if(!$("#modal").hidden){if(ev.key==="Escape")closeModal();return}
+  if(!R)return;
+  const tag=(ev.target.tagName||"").toLowerCase();
+  if(ev.key==="Escape"){closeRun();return}
+  if(tag==="input"||tag==="select"||tag==="textarea")return;
+  if(ev.key===" "&&tag!=="button"){ev.preventDefault();play()}
+  else if(ev.key==="ArrowRight"){ev.preventDefault();step(1)}
+  else if(ev.key==="ArrowLeft"){ev.preventDefault();step(-1)}
+});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&R&&R.running)wake()});
+window.addEventListener("hashchange",()=>{route();watchScores()});
+
+/* App: offline, Installation, Updates */
+const LSI="einsingen-installhinweis-v1";
+const STANDALONE=(()=>{try{return navigator.standalone===true||matchMedia("(display-mode: standalone)").matches}catch(e){return false}})();
+const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+let readyT=null;
+async function checkReady(){
+  clearTimeout(readyT);
+  try{
+    const ok=await caches.match("abcjs-basic-min.js",{ignoreSearch:true})&&await caches.match("index.html",{ignoreSearch:true});
+    if(ok){if($("#upd").hidden)setStatus("ok");return}
+  }catch(e){}
+  setStatus("loading");readyT=setTimeout(checkReady,3000);
+}
+function initApp(){
+  const fsb=document.querySelector('[data-act="fs"]');
+  const de=document.documentElement;
+  if(fsb&&(STANDALONE||!(de.requestFullscreen||de.webkitRequestFullscreen)))fsb.hidden=true;
+  let hide=false;try{hide=localStorage.getItem(LSI)==="1"}catch(e){}
+  if(IOS&&!STANDALONE&&!hide)$("#install").hidden=false;
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
+  if(!("serviceWorker" in navigator)||!window.isSecureContext||!window.caches){setStatus("local");return}
+  const had=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had){$("#upd").hidden=false;setStatus("update")}else checkReady()});
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    navigator.serviceWorker.ready.then(checkReady);
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!R)reg.update().catch(()=>{})});
+  }).catch(()=>setStatus("local"));
+}
+$("#foot").textContent="Die App läuft ohne Internet. Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und der Papierkorb bleiben in dieser App auf diesem Gerät. Zum Übertragen auf ein anderes Gerät oder aus der Online-Version: Regeln und Quellen, Daten sichern und übertragen. Notensatz mit abcjs, Wiedergabe mit einfachem Synthesizer.";
+$("#xp-info").textContent="Exportieren sichert Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und Papierkorb als Datei. Mit Importieren holst du sie zurück, auf einem anderen iPhone oder iPad oder aus der Online-Version. Tipp: ab und zu exportieren. Wenn du die App vom Home-Bildschirm löschst, sind auch ihre Daten weg.";
+renderRules();renderAll();route();
+loadAbc("abcjs-basic-min.js",()=>{abcState="fail";redrawScores()});
+initApp();
+}
+</script>
+</body>
+</html>
