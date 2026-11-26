@@ -783,7 +783,7 @@ const KEYSIG={C:0,G:1,D:2,A:3,E:4,B:5,"F#":6,"C#":7,F:-1,Bb:-2,Eb:-3,Ab:-4,Db:-5
 const SEMI={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 function keyAcc(k){const n=KEYSIG[k]||0,acc={},sh="FCGDAEB",fl="BEADGCF";if(n>0)for(let i=0;i<n;i++)acc[sh[i]]=1;else for(let i=0;i<-n;i++)acc[fl[i]]=-1;return acc}
 function parseAbc(abc){
-  let L=1/8,qb=1/4,bpm=90,K={},perc=false;
+  let L=1/8,qb=1/4,bpm=90,K={},perc=false,mt={num:4,den:4},first=null;
   const body=[];
   for(const raw of String(abc).split(/\r?\n/)){
     const ln=raw.replace(/%.*$/,"");
@@ -792,6 +792,7 @@ function parseAbc(abc){
       const f=m[1],v=m[2].trim();
       if(f==="L"){const p=v.split("/");const a=parseFloat(p[0]),b=parseFloat(p[1]||"1");if(a>0&&b>0)L=a/b}
       else if(f==="Q"){const q=v.match(/(\d+)\s*\/\s*(\d+)\s*=\s*(\d+)/);if(q){qb=(+q[1])/(+q[2]);bpm=+q[3]}else{const n=v.match(/^(\d+)$/);if(n)bpm=+n[1]}}
+      else if(f==="M"){if(/^C\|/.test(v))mt={num:2,den:2};else if(/^C/.test(v))mt={num:4,den:4};else{const q=v.match(/(\d+)\s*\/\s*(\d+)/);if(q&&+q[1]>0&&+q[2]>0)mt={num:+q[1],den:+q[2]}}}
       else if(f==="K"){let k=(v.split(/\s+/)[0]||"C");k=k.replace(/maj$/i,"").replace(/min$/i,"m");K=keyAcc(k);perc=/clef\s*=\s*perc/i.test(v)}
       continue;
     }
@@ -822,12 +823,12 @@ function parseAbc(abc){
     if(c==='"'){const j=s.indexOf('"',i+1);i=j<0?s.length:j+1;continue}
     if(c==="!"||c==="+"){const j=s.indexOf(c,i+1);i=j<0?s.length:j+1;continue}
     if(c==="{"){const j=s.indexOf("}",i+1);i=j<0?s.length:j+1;continue}
-    if(c==="|"||c===":"){bar={};i++;continue}
+    if(c==="|"||c===":"){bar={};if(first===null&&t>1e-9)first=t;i++;continue}
     if(c==="]"){i++;continue}
     if(c==="["){
       const rest=s.slice(i);
       if(/^\[[A-Za-z]:/.test(rest)){const j=s.indexOf("]",i);i=j<0?s.length:j+1;continue}
-      if(rest[1]==="|"){bar={};i+=2;continue}
+      if(rest[1]==="|"){bar={};if(first===null&&t>1e-9)first=t;i+=2;continue}
       if(/^\[\d/.test(rest)){i+=2;continue}
       i++;const ms=[];let d0=null;
       while(i<s.length&&s[i]!=="]"){const p=pitch();if(p&&!p.rest){const d=dur();if(d0===null)d0=d;ms.push(p.m)}else if(!p)i++}
@@ -848,20 +849,21 @@ function parseAbc(abc){
     }
     i++;
   }
-  return {ev:ev,len:t,whole:(60/bpm)/qb,beat:qb,perc:perc};
+  return {ev:ev,len:t,whole:(60/bpm)/qb,beat:qb,perc:perc,meter:mt,first:first};
 }
 const NN=["C","Cis","D","Dis","E","F","Fis","G","Gis","A","B","H"];
 function noteNames(p,tr){return p.ev.map(e=>e.m.map(m=>NN[((m+tr)%12+12)%12]).join("+")).join(" ")}
 
 /* audio */
-let AC=null,live=[],endT=null,playBtn=null,sleepT=null;
-function schlafen(){clearTimeout(sleepT);sleepT=setTimeout(()=>{if(live.length||(R&&R.running))return;try{if(AC&&AC.state==="running")AC.suspend()}catch(e){}},20000)}
+let AC=null,live=[],endT=null,playBtn=null,sleepT=null,RISE=null,riseT=null;
+function schlafen(){clearTimeout(sleepT);sleepT=setTimeout(()=>{if(live.length||RISE||(R&&R.running))return;try{if(AC&&AC.state==="running")AC.suspend()}catch(e){}},20000)}
 function ac(){clearTimeout(sleepT);try{if(navigator.audioSession&&navigator.audioSession.type!=="playback")navigator.audioSession.type="playback"}catch(e){}try{if(!AC){const X=window.AudioContext||window.webkitAudioContext;if(X)AC=new X()}if(AC&&AC.state==="suspended")AC.resume()}catch(e){}return AC}
 function stopAll(){
   for(const o of live){try{o.stop()}catch(e){}}
-  live=[];clearTimeout(endT);
+  live=[];clearTimeout(endT);clearTimeout(riseT);
   if(playBtn){playBtn.textContent=playBtn.dataset.label||playBtn.textContent;playBtn.removeAttribute("aria-pressed")}
   playBtn=null;
+  if(RISE){const b=RISE.box;RISE=null;for(const x of b.querySelectorAll('[data-act="nrise"]')){x.textContent=x.dataset.label;x.removeAttribute("aria-pressed")}}
   schlafen();
 }
 function tone(sec,vol){
@@ -869,24 +871,75 @@ function tone(sec,vol){
   try{const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.03);g.gain.setValueAtTime(vol,t+sec-.15);g.gain.exponentialRampToValueAtTime(.0001,t+sec);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+sec+.05)}catch(e){}
   schlafen();
 }
+function lowpass(ctx){const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2400;lp.connect(ctx.destination);return lp}
+/* Töne ab Zeitpunkt t0 (Sekunden der Klangausgabe) planen, gibt das Ende zurück */
+function synth(ctx,lp,evs,t0,whole){
+  let end=t0;
+  for(const e of evs){
+    const st=t0+e.t*whole,du=Math.max(0.07,e.d*whole);end=Math.max(end,st+du);
+    for(const m of e.m){
+      const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=440*Math.pow(2,(m-69)/12);
+      const v=e.v||0.22;g.gain.setValueAtTime(0.0001,st);g.gain.exponentialRampToValueAtTime(v,st+0.025);g.gain.setValueAtTime(v,st+Math.max(0.03,du-0.08));g.gain.exponentialRampToValueAtTime(0.0001,st+du);
+      o.connect(g);g.connect(lp);o.start(st);o.stop(st+du+0.03);o._end=st+du+0.03;live.push(o);
+    }
+  }
+  return end;
+}
 function playSeq(evs,whole,btn){
   stopAll();const ctx=ac();if(!ctx||!evs.length)return;
   const t0=ctx.currentTime+0.06;let end=0;
-  try{
-    const lp=ctx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2400;lp.connect(ctx.destination);
-    for(const e of evs){
-      const st=t0+e.t*whole,du=Math.max(0.07,e.d*whole);end=Math.max(end,e.t*whole+du);
-      for(const m of e.m){
-        const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=440*Math.pow(2,(m-69)/12);
-        const v=e.v||0.22;g.gain.setValueAtTime(0.0001,st);g.gain.exponentialRampToValueAtTime(v,st+0.025);g.gain.setValueAtTime(v,st+Math.max(0.03,du-0.08));g.gain.exponentialRampToValueAtTime(0.0001,st+du);
-        o.connect(g);g.connect(lp);o.start(st);o.stop(st+du+0.03);live.push(o);
-      }
-    }
-  }catch(e){}
+  try{end=synth(ctx,lowpass(ctx),evs,t0,whole)-t0}catch(e){}
   if(btn){playBtn=btn;btn.dataset.label=btn.dataset.label||btn.textContent;btn.textContent="Stopp";btn.setAttribute("aria-pressed","true")}
   endT=setTimeout(stopAll,(end+0.25)*1000);
 }
 function shifted(p,dt,tr,v){return p.ev.map(e=>({t:e.t+dt,d:e.d,m:e.m.map(m=>m+tr),v:v}))}
+
+/* Halbtonweise hoch oder runter: Durchlauf für Durchlauf planen, damit ein Wechsel der Richtung
+   erst ab dem nächsten Durchlauf gilt. Vor jedem Durchlauf ein Takt Pause: auf Schlag 3 erklingt
+   der erste Ton in der neuen Höhe, dann setzt das Muster ein. Höchstens eine Oktave vom Start weg. */
+function riseGrid(p){
+  const mt=p.meter||{num:4,den:4},bar=mt.num/mt.den;
+  const comp=mt.den===8&&mt.num%3===0&&mt.num>=6,beat=comp?3/8:1/mt.den,beats=Math.max(1,Math.round(bar/beat));
+  const a=(p.first!==null&&p.first!==undefined&&p.first<bar-1e-6)?p.first:0;   /* Auftakt des Musters */
+  const cueEnd=bar-a-beat*0.12;
+  let cueAt=(beats>=3?2:beats-1)*beat;                                       /* Schlag 3, bei zwei Schlägen der letzte */
+  if(cueEnd-cueAt<beat*0.5)cueAt=Math.max(0,Math.floor((cueEnd-beat*0.5)/beat+1e-9)*beat);   /* langer Auftakt: einen Schlag früher */
+  const span=Math.max(1,Math.ceil((p.len-a)/bar-1e-6))*bar;                  /* Muster ab dem ersten Taktstrich, auf ganze Takte */
+  return {bar:bar,a:a,cueAt:cueAt,cueEnd:cueEnd,span:span};
+}
+function riseOk(p,tr,start){
+  if(Math.abs(tr-start)>12)return false;
+  for(const e of p.ev)for(const m of e.m)if(m+tr<36||m+tr>96)return false;
+  return true;
+}
+function riseLabel(){
+  if(!RISE)return;
+  for(const b of RISE.box.querySelectorAll('[data-act="nrise"]')){const on=+b.dataset.d===RISE.dir;b.textContent=on?"Stopp":b.dataset.label;if(on)b.setAttribute("aria-pressed","true");else b.removeAttribute("aria-pressed")}
+}
+function riseStart(n,p,dir,box){
+  stopAll();const ctx=ac();if(!ctx)return;
+  try{RISE={p:p,g:riseGrid(p),dir:dir,tr:n.tr,start:n.tr,box:box,first:true,t:ctx.currentTime+0.08,lp:lowpass(ctx)}}catch(e){RISE=null;return}
+  riseLabel();riseBlock();
+}
+function riseBlock(){
+  const Q=RISE;if(!Q||!AC)return;
+  const ctx=AC,p=Q.p,g=Q.g,W=p.whole;
+  if(!Q.first){
+    const nx=Q.tr+Q.dir;
+    if(!riseOk(p,nx,Q.start)){endT=setTimeout(stopAll,Math.max(0,(Q.t-ctx.currentTime)*1000));return}   /* Grenze erreicht: nach diesem Durchlauf Schluss */
+    Q.tr=nx;
+  }
+  Q.first=false;
+  live=live.filter(o=>o._end>ctx.currentTime);
+  const t0=Math.max(Q.t,ctx.currentTime+0.03-g.cueAt*W);   /* Beginn des Pausentakts */
+  try{
+    synth(ctx,Q.lp,[{t:0,d:g.cueEnd-g.cueAt,m:p.ev[0].m.map(m=>m+Q.tr),v:0.22}],t0+g.cueAt*W,W);   /* erster Ton auf 3 */
+    synth(ctx,Q.lp,shifted(p,0,Q.tr,0.22),t0+(g.bar-g.a)*W,W);                                    /* Muster, der Auftakt endet am Taktstrich */
+  }catch(e){}
+  Q.t=t0+(g.bar+g.span)*W;                                                                         /* nächster Takt Pause */
+  /* die Höhe des nächsten Durchlaufs steht erst kurz vor seinem Ton auf 3 fest: bis dahin gilt ein Wechsel noch für ihn */
+  riseT=setTimeout(riseBlock,Math.max(0,(Q.t+g.cueAt*W-ctx.currentTime-0.3)*1000));
+}
 
 /* notation registry */
 const NT=new Map();
@@ -937,7 +990,7 @@ lastW=window.innerWidth;
 function ntHTML(e,i){
   const x=e.nt[i];const t=x[0],abc=x[1],np=!!x[2];
   const k=e.nr+"::"+i;const n=reg(k,abc,e.can,np);
-  const ctl=np?"":`<div class="nt-ctl"><button class="sbtn" data-act="nplay">Anhören</button><button class="sbtn" data-act="nrise">Halbtonweise hoch</button>${e.can?`<button class="sbtn" data-act="ncanon">Als Kanon, ${e.can.v} Gruppen</button>`:""}<span class="trn"><button class="sbtn sq" data-act="ntr" data-d="-1" aria-label="Einen Halbton tiefer">−</button><span class="trv">${trLabel(n.tr)}</span><button class="sbtn sq" data-act="ntr" data-d="1" aria-label="Einen Halbton höher">+</button></span></div>`;
+  const ctl=np?"":`<div class="nt-ctl"><button class="sbtn" data-act="nplay">Anhören</button><button class="sbtn" data-act="nrise" data-d="1" data-label="Halbtonweise hoch">Halbtonweise hoch</button><button class="sbtn" data-act="nrise" data-d="-1" data-label="Halbtonweise runter">Halbtonweise runter</button>${e.can?`<button class="sbtn" data-act="ncanon">Als Kanon, ${e.can.v} Gruppen</button>`:""}<span class="trn"><button class="sbtn sq" data-act="ntr" data-d="-1" aria-label="Einen Halbton tiefer">−</button><span class="trv">${trLabel(n.tr)}</span><button class="sbtn sq" data-act="ntr" data-d="1" aria-label="Einen Halbton höher">+</button></span></div>`;
   return `<div class="nt" data-k="${esc(k)}"><div class="nt-head"><span class="nt-t">${esc(t)}</span>${ctl}</div><div class="score" role="img" aria-label="Noten: ${esc(t)}"></div></div>`;
 }
 function ntAction(a,btn){
@@ -948,11 +1001,16 @@ function ntAction(a,btn){
     for(const b of document.querySelectorAll('.nt[data-k="'+CSS.escape(k)+'"]')){b.querySelector(".trv").textContent=trLabel(n.tr);const sc=b.querySelector(".score");if(sc&&(sc.dataset.w||sc.dataset.pend))drawScore(sc)}
     return;
   }
+  if(a==="nrise"){
+    const d=+btn.dataset.d===-1?-1:1;
+    if(RISE&&RISE.box===box){if(RISE.dir===d){stopAll();return}RISE.dir=d;riseLabel();return}   /* Richtung gilt ab dem nächsten Durchlauf */
+    const p=parsed(n);if(!p.ev.length)return;
+    riseStart(n,p,d,box);return;
+  }
   if(btn.getAttribute("aria-pressed")==="true"){stopAll();return}
   const p=parsed(n);if(!p.ev.length)return;
   let evs=[];
   if(a==="nplay")evs=shifted(p,0,n.tr,0.22);
-  else if(a==="nrise"){const gap=p.beat;for(let r=0;r<4;r++)evs=evs.concat(shifted(p,r*(p.len+gap),n.tr+r,0.22))}
   else if(a==="ncanon"&&n.can){const V=n.can.v,E=n.can.e/4,R=2,vol=0.2/Math.sqrt(V);for(let v=0;v<V;v++)for(let r=0;r<R;r++)evs=evs.concat(shifted(p,v*E+r*p.len,n.tr,vol))}
   playSeq(evs,p.whole,btn);
 }

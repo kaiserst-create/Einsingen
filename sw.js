@@ -8,7 +8,7 @@
    den Speicher. Deshalb löscht dieser Service Worker nur eigene Speicher (einsingen-app-…) und füllt
    seinen eigenen beim Öffnen wieder auf, falls eine andere App ihn gelöscht hat.
    Er arbeitet nur, während die App geöffnet ist: kein Push, kein Hintergrund-Sync. */
-const VERSION = "2026-11-26-2";
+const VERSION = "2026-11-26-3";
 const APP = "einsingen-app-" + VERSION;
 const FONTS = "einsingen-fonts-v1";
 const FILES = [
