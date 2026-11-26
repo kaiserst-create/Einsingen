@@ -12,6 +12,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.webmanifest">
+<script>
+  // Hell oder dunkel sofort setzen, damit nichts aufblitzt
+  try { var p = localStorage.getItem("einsingen-profil-v1"); if (p === "light" || p === "dark") document.documentElement.setAttribute("data-profil", p); } catch (e) {}
+</script>
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,11 +51,6 @@ h1{font-size:clamp(36px,6vw,52px)}
 .status i{width:9px;height:9px;border-radius:50%;background:#9be3a7;flex:none}
 .status[data-s=local] i,.status[data-s=slow] i,.status[data-s=fail] i{background:#ffc46b}
 .status[data-s=loading] i,.status[data-s=saving] i{background:#cfc2d6}
-.prof{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--plum2)}
-.prof div{display:flex;gap:2px;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
-.prof button{border:0;background:none;color:var(--plum2);min-height:40px;padding:4px 14px;border-radius:999px;font-weight:700;cursor:pointer}
-.prof button[aria-pressed=true]{background:#fff;color:#2b1235}
-.prof button:focus-visible{outline:3px solid #fff;outline-offset:1px}
 .tabs{position:sticky;top:0;z-index:20;background:var(--plum);box-shadow:0 1px 0 rgba(255,255,255,.12) inset}
 .tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 .tabs a{color:var(--plum2);text-decoration:none;padding:0 14px;min-height:50px;display:flex;align-items:center;border-bottom:4px solid transparent;white-space:nowrap;font-weight:700;flex:none}
@@ -238,15 +237,35 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
 .run-main{padding-left:max(16px,4vw,env(safe-area-inset-left,0px));padding-right:max(16px,4vw,env(safe-area-inset-right,0px))}
 .run-foot{padding-left:max(16px,3vw,env(safe-area-inset-left,0px));padding-right:max(16px,3vw,env(safe-area-inset-right,0px))}
 .upd{border:1px solid rgba(255,255,255,.55);background:none;color:#fff;border-radius:999px;min-height:36px;padding:4px 14px;font-weight:700;font-size:14px;cursor:pointer}
-.install{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:12px 14px;margin:0 0 20px;background:var(--card)}
-.install p{margin:0}
-.install b{font-weight:700}
-.install .sbtn{flex:none}
-.install-b{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;flex:none}
-.sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
-@media (max-width:520px){.install{flex-direction:column}.install-b{align-self:stretch}.install-b .sbtn{flex:1 1 0}}
-.shr{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.18em}
-.shr svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2}
+/* Hinweis zum Installieren (wie in Tuner und Songwriting & Chords) */
+#install-zeile{margin-top:8px}
+.link-knopf{border:0;background:none;color:var(--acc);font:inherit;font-weight:700;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+html.ih-offen body{padding-bottom:calc(var(--ih-hoehe,0px) + env(safe-area-inset-bottom,0px))}
+.install-hinweis{position:fixed;z-index:30;left:0;right:0;margin:0 auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(520px,calc(100% - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)));display:flex;gap:12px;align-items:flex-start;background:var(--bg);color:var(--ink);border:1px solid var(--line2);border-left:4px solid var(--acc);border-radius:16px;padding:14px 12px 14px 14px;box-shadow:0 2px 6px rgba(20,16,28,.08),0 12px 32px rgba(20,16,28,.18);opacity:0;transform:translateY(16px);transition:opacity .25s ease,transform .25s ease}
+.install-hinweis.da{opacity:1;transform:none}
+.ih-icon{width:44px;height:44px;border-radius:10px;flex:none}
+.ih-text{flex:1;min-width:0;display:grid;gap:6px;font-size:15px;text-align:left}
+.ih-text h2{font-size:17px;margin:0}
+.ih-text p{margin:0}
+.ih-text ol{margin:2px 0 0;padding-left:20px;display:grid;gap:4px}
+.ih-text b{font-weight:700}
+.ih-text .btn{justify-self:start;margin-top:4px}
+.ih-text .leise{color:var(--mute)}
+.ih-symbol{width:18px;height:18px;vertical-align:-3px;fill:none;stroke:var(--acc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ih-zu{width:36px;height:36px;flex:none;margin:-6px -4px 0 0;border:0;border-radius:999px;background:none;color:var(--mute);font-size:24px;line-height:1;cursor:pointer}
+.ih-zu:hover{background:var(--card)}
+@media (max-width:400px){.ih-icon{display:none}}
+@media (prefers-reduced-motion:reduce){.install-hinweis{transition:none;transform:none}}
+/* Hell oder dunkel (wie in Tuner und Songwriting & Chords) */
+.top .wrap{position:relative}
+.top .wrap>div:first-child{padding-right:56px}
+.thema{position:absolute;top:calc(clamp(22px,4vw,40px) + env(safe-area-inset-top,0px));right:max(16px,4vw,env(safe-area-inset-right,0px));width:40px;height:40px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer}
+.thema svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.thema .mond{fill:currentColor;stroke:none;display:none}
+:root[data-profil=dark] .thema .sonne{display:none}
+:root[data-profil=dark] .thema .mond{display:block}
+@media (prefers-color-scheme:dark){:root:not([data-profil=light]) .thema .sonne{display:none}:root:not([data-profil=light]) .thema .mond{display:block}}
+.thema:focus-visible{outline:3px solid #fff;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -257,7 +276,10 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
       <p class="sub" id="sub">Übungen, Kanons und Abläufe für Chor und Solo</p>
     </div>
     <div class="side">
-      <div class="prof" role="group" aria-label="Profil"><span>Profil</span><div id="prof"><button data-act="prof" data-p="auto" aria-pressed="true">Auto</button><button data-act="prof" data-p="light" aria-pressed="false">Hell</button><button data-act="prof" data-p="dark" aria-pressed="false">Dunkel</button></div></div>
+      <button type="button" id="thema" class="thema" data-act="thema" aria-label="Hell oder dunkel umschalten" title="Hell oder dunkel">
+        <svg class="sonne" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg class="mond" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      </button>
       <div class="status" id="status" data-s="loading"><i></i><span>Wird für offline vorbereitet</span></div>
       <button class="upd" id="upd" data-act="reload" hidden>Neue Version laden</button>
     </div>
@@ -272,13 +294,6 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
   </div>
 </nav>
 <main class="wrap">
-  <div class="install" id="install" hidden>
-    <p id="install-txt"><b>Als App installieren:</b> In Safari auf <span class="shr" aria-label="Teilen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 11v9h14v-9"/></svg></span> Teilen tippen, dann <b>Zum Home-Bildschirm</b>. Danach die App einmal mit Internet öffnen, bis oben „Offline bereit“ steht.</p>
-    <div class="install-b">
-      <button class="sbtn pri" id="install-go" data-act="doinstall" hidden>Installieren</button>
-      <button class="sbtn" data-act="noinstall">Ausblenden</button>
-    </div>
-  </div>
   <section id="v-ablaeufe">
     <div class="bar">
       <div>
@@ -363,6 +378,7 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
     </div>
   </section>
   <p class="foot" id="foot">Favoriten, Notizen, Änderungen, eigene Einträge, Abläufe und der Papierkorb werden in deinem Konto gespeichert, sobald du angemeldet bist. Sonst bleiben sie auf diesem Gerät. Notensatz mit abcjs, Wiedergabe mit einfachem Synthesizer.</p>
+  <p class="foot" id="install-zeile" hidden><button type="button" class="link-knopf" id="install-oeffnen">Einsingen als App installieren</button></p>
 </main>
 
 <div class="run" id="run" hidden role="dialog" aria-modal="true" aria-labelledby="run-title">
@@ -400,6 +416,20 @@ button,.btn,.chip,.sbtn,.tabs a,summary,.icon,.star{touch-action:manipulation}
 
 <div class="modal" id="modal" hidden><div class="panel" id="panel" role="dialog" aria-modal="true"></div></div>
 
+<!-- Hinweis zum Installieren (iPhone, iPad, Android), wie in Tuner und Songwriting & Chords -->
+<aside id="install-hinweis" class="install-hinweis" aria-labelledby="ih-titel" hidden>
+  <img class="ih-icon" src="icons/icon-192.png" alt="" width="44" height="44">
+  <div class="ih-text">
+    <h2 id="ih-titel">Als App installieren</h2>
+    <p id="ih-nutzen"></p>
+    <ol id="ih-schritte"></ol>
+    <p id="ih-notiz" class="leise" hidden></p>
+    <button type="button" class="btn pri" id="ih-installieren" hidden>Installieren</button>
+  </div>
+  <button type="button" class="ih-zu" id="ih-zu" aria-label="Hinweis schließen" title="Schließen">×</button>
+</aside>
+
+<script src="installieren.js"></script>
 <script>
 {
 const OFFLINE=true;
@@ -824,17 +854,20 @@ const NN=["C","Cis","D","Dis","E","F","Fis","G","Gis","A","B","H"];
 function noteNames(p,tr){return p.ev.map(e=>e.m.map(m=>NN[((m+tr)%12+12)%12]).join("+")).join(" ")}
 
 /* audio */
-let AC=null,live=[],endT=null,playBtn=null;
-function ac(){try{if(navigator.audioSession&&navigator.audioSession.type!=="playback")navigator.audioSession.type="playback"}catch(e){}try{if(!AC){const X=window.AudioContext||window.webkitAudioContext;if(X)AC=new X()}if(AC&&AC.state==="suspended")AC.resume()}catch(e){}return AC}
+let AC=null,live=[],endT=null,playBtn=null,sleepT=null;
+function schlafen(){clearTimeout(sleepT);sleepT=setTimeout(()=>{if(live.length||(R&&R.running))return;try{if(AC&&AC.state==="running")AC.suspend()}catch(e){}},20000)}
+function ac(){clearTimeout(sleepT);try{if(navigator.audioSession&&navigator.audioSession.type!=="playback")navigator.audioSession.type="playback"}catch(e){}try{if(!AC){const X=window.AudioContext||window.webkitAudioContext;if(X)AC=new X()}if(AC&&AC.state==="suspended")AC.resume()}catch(e){}return AC}
 function stopAll(){
   for(const o of live){try{o.stop()}catch(e){}}
   live=[];clearTimeout(endT);
   if(playBtn){playBtn.textContent=playBtn.dataset.label||playBtn.textContent;playBtn.removeAttribute("aria-pressed")}
   playBtn=null;
+  schlafen();
 }
 function tone(sec,vol){
   const ctx=ac();if(!ctx)return;
   try{const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=440;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.03);g.gain.setValueAtTime(vol,t+sec-.15);g.gain.exponentialRampToValueAtTime(.0001,t+sec);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+sec+.05)}catch(e){}
+  schlafen();
 }
 function playSeq(evs,whole,btn){
   stopAll();const ctx=ac();if(!ctx||!evs.length)return;
@@ -875,10 +908,16 @@ function drawScore(el){
       const big=!!el.closest(".run");const sc=w<480?0.8:(big?1.15:1);
       const opt=sw=>({staffwidth:sw,scale:sc,add_classes:true,paddingtop:2,paddingbottom:4,paddingleft:0,paddingright:0,visualTranspose:n.tr,wrap:{minSpacing:1.8,maxSpacing:2.7,preferredMeasuresPerLine:4}});
       let sw=Math.max(180,Math.floor((w-14)/sc));
+      el.removeAttribute("style");   /* Größenangaben vom letzten Setzen entfernen */
       window.ABCJS.renderAbc(el,n.abc,opt(sw));
       /* neuere abcjs-Versionen geben links und rechts Rand dazu: dann schmaler neu setzen, damit nichts über den Rand ragt */
       const svg=el.querySelector("svg"),real=svg?svg.getBoundingClientRect().width:0;
-      if(real>w+1){sw=Math.max(120,Math.floor(sw-(real-w)/sc)-2);window.ABCJS.renderAbc(el,n.abc,opt(sw))}
+      if(real>w+1){
+        const sw0=sw;sw=Math.max(120,Math.floor(sw-(real-w)/sc)-2);window.ABCJS.renderAbc(el,n.abc,opt(sw));
+        /* passt ein langer Takt trotzdem nicht (zum Beispiel viele Sechzehntel mit Text), das Bild auf die Breite verkleinern */
+        const s2=el.querySelector("svg");
+        if(s2&&s2.getBoundingClientRect().width>w+1){el.removeAttribute("style");window.ABCJS.renderAbc(el,n.abc,Object.assign(opt(sw0),{responsive:"resize"}))}
+      }
       return;
     }catch(e){}
   }
@@ -890,7 +929,9 @@ try{io=new IntersectionObserver(es=>{for(const x of es){if(x.isIntersecting){io.
 function watchScores(root){for(const el of (root||document).querySelectorAll(".score:not([data-w]):not([data-watch])")){el.dataset.watch="1";if(io)io.observe(el);else drawScore(el)}}
 function redrawScores(){for(const el of document.querySelectorAll(".score[data-w],.score[data-pend]"))drawScore(el)}
 let lastW=0,rT=null;
-window.addEventListener("resize",()=>{clearTimeout(rT);rT=setTimeout(()=>{const w=window.innerWidth;if(Math.abs(w-lastW)<30)return;lastW=w;for(const el of document.querySelectorAll(".score[data-w]")){const bw=(el.closest(".nt")||el).clientWidth||0;if(bw&&Math.abs(bw-(+el.dataset.w))>24)drawScore(el)}},250)});
+/* Noten neu einpassen, wenn sich die Breite geändert hat. Ausgeblendete Bereiche haben keine Breite, sie kommen beim Wechsel dran. */
+function refit(){for(const el of document.querySelectorAll(".score[data-w]")){const bw=(el.closest(".nt")||el).clientWidth||0;if(bw&&Math.abs(bw-(+el.dataset.w))>24)drawScore(el)}}
+window.addEventListener("resize",()=>{clearTimeout(rT);rT=setTimeout(()=>{const w=window.innerWidth;if(Math.abs(w-lastW)<30)return;lastW=w;refit()},250)});
 lastW=window.innerWidth;
 
 function ntHTML(e,i){
@@ -967,14 +1008,17 @@ const STAT={loading:"Wird für offline vorbereitet",ok:"Offline bereit, Daten au
 function setStatus(s){const el=$("#status");el.dataset.s=s;el.querySelector("span").textContent=STAT[s]||""}
 
 /* profile */
+function istDunkel(){const p=document.documentElement.getAttribute("data-profil");if(p)return p==="dark";try{return matchMedia("(prefers-color-scheme: dark)").matches}catch(e){return false}}
+function themaFarbe(){const m=document.querySelector('meta[name="theme-color"]');if(!m)return;const c=getComputedStyle(document.documentElement).getPropertyValue("--plum").trim();if(c)m.setAttribute("content",c)}
 function applyProfil(p){
   const r=document.documentElement;
   if(p==="light"||p==="dark")r.setAttribute("data-profil",p);else r.removeAttribute("data-profil");
-  for(const b of document.querySelectorAll("#prof button"))b.setAttribute("aria-pressed",String(b.dataset.p===(p||"auto")));
+  themaFarbe();
 }
 let PROF="auto";
 try{const p=localStorage.getItem(LSP);if(p==="light"||p==="dark")PROF=p}catch(e){}
 applyProfil(PROF);
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",themaFarbe)}catch(e){}
 
 /* Speichern auf dem Gerät */
 function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
@@ -1117,7 +1161,7 @@ ${EF.mode==="copy"?`<p class="help">Die Kopie bekommt beim Speichern eine neue N
 <div class="f2"><div><label for="ef-kind">Typ</label><select id="ef-kind">${Object.keys(KINDS).map(x=>`<option value="${x}"${EF.kind===x?" selected":""}>${KINDS[x]}</option>`).join("")}</select></div>
 <div><label for="ef-ph">Phase</label><select id="ef-ph">${PHORD.map((p,i)=>`<option value="${p}"${EF.ph===p?" selected":""}>${i+1} ${esc(PH[p-1])}</option>`).join("")}</select></div>
 <div><label for="ef-fuer">Für</label><select id="ef-fuer">${["Beide","Chor","Solo"].map(f=>`<option${EF.fuer===f?" selected":""}>${f}</option>`).join("")}</select></div>
-<div><label for="ef-min">Minuten</label><input id="ef-min" type="number" min="0" step="0.5" inputmode="decimal" value="${esc(EF.min)}"></div></div>
+<div><label for="ef-min">Minuten</label><input id="ef-min" type="text" inputmode="decimal" autocomplete="off" value="${esc(String(EF.min).replace(".",","))}"></div></div>
 <div class="f2">${fld("ef-name","Name",EF.name)}${fld("ef-lang","Sprache, optional",EF.lang)}</div>
 ${fld("ef-txt","Text, bei Kanons und Zungenbrechern",EF.txt)}${fld("ef-anl","Anleitung",EF.anl,1)}${fld("ef-ziel","Ziel",EF.ziel)}
 <div class="f2">${fld("ef-lage","Lage, Tonraum",EF.lage)}${fld("ef-q","Quelle",EF.q)}</div>
@@ -1201,7 +1245,7 @@ ${ED.pre?`<p class="help">Mitgelieferte Vorlage. Deine Änderungen ersetzen sie,
 <label for="ed-desc" style="margin-top:10px">Beschreibung, optional</label><textarea id="ed-desc" rows="2">${esc(ED.desc)}</textarea>
 <div style="margin-top:14px">${ED.steps.map((s,i)=>`<div class="edrow"><span class="ix">${i+1}</span>
 <select data-ed="nr" data-i="${i}" aria-label="Übung für Schritt ${i+1}">${optsFor(s.nr)}</select>
-<input type="number" min="0" step="0.5" inputmode="decimal" data-ed="min" data-i="${i}" value="${esc(s.min)}" aria-label="Minuten für Schritt ${i+1}">
+<input type="text" inputmode="decimal" autocomplete="off" data-ed="min" data-i="${i}" value="${esc(String(s.min).replace(".",","))}" aria-label="Minuten für Schritt ${i+1}">
 <div class="row"><button class="icon" data-act="up" data-i="${i}" aria-label="Schritt nach oben"${i===0?" disabled":""}>↑</button><button class="icon" data-act="down" data-i="${i}" aria-label="Schritt nach unten"${i===ED.steps.length-1?" disabled":""}>↓</button><button class="icon" data-act="rm" data-i="${i}" aria-label="Schritt entfernen">×</button></div>
 <input class="hn" data-ed="hint" data-i="${i}" value="${esc(s.hint)}" placeholder="Hinweis für diesen Schritt" aria-label="Hinweis für Schritt ${i+1}"></div>`).join("")}</div>
 <button class="btn" data-act="addstep" style="margin-top:10px">Schritt hinzufügen</button>
@@ -1390,7 +1434,7 @@ document.addEventListener("click",ev=>{
   if(!b){if(ev.target===$("#modal"))closeModal();return}
   const a=b.dataset.act;
   if(a==="nplay"||a==="nrise"||a==="ncanon"||a==="ntr"){ntAction(a,b);return}
-  if(a==="prof"){PROF=b.dataset.p;try{localStorage.setItem(LSP,PROF)}catch(e){}applyProfil(PROF);return}
+  if(a==="thema"){PROF=istDunkel()?"light":"dark";try{localStorage.setItem(LSP,PROF)}catch(e){}applyProfil(PROF);return}
   if(a==="start")openRun(b.dataset.id);
   else if(a==="newplan")openEditor(null,"new");
   else if(a==="editplan")openEditor(b.dataset.id,"edit");
@@ -1407,8 +1451,6 @@ document.addEventListener("click",ev=>{
   else if(a==="xcopy")copyExport(b);
   else if(a==="xshare")shareExport(b);
   else if(a==="reload")location.reload();
-  else if(a==="noinstall"){$("#install").hidden=true;try{localStorage.setItem(LSI,"1")}catch(e){}}
-  else if(a==="doinstall")doInstall();
   else if(a==="import")openImport();
   else if(a==="doimport")doImport(b);
   else if(a==="resetex")arm(b,()=>{delete S.edits[EF.orig];persist();closeModal();renderAll()},"Änderungen verwerfen?");
@@ -1462,36 +1504,27 @@ document.addEventListener("keydown",ev=>{
   else if(ev.key==="ArrowRight"){ev.preventDefault();step(1)}
   else if(ev.key==="ArrowLeft"){ev.preventDefault();step(-1)}
 });
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&R&&R.running)wake()});
-window.addEventListener("hashchange",()=>{route();watchScores()});
+/* Hintergrund: nichts läuft weiter. Geht die App in den Hintergrund oder wird sie geschlossen,
+   verstummen alle Töne, ein laufender Ablauf hält an, die Uhr steht und die Klangausgabe schläft.
+   Neue Timer, Schleifen oder Audio-Quellen müssen hier mit aufhören. */
+function ruhe(){
+  stopAll();
+  if(R){if(R.running){R.left=Math.max(0,R.endAt-Date.now());R.running=false;clock()}clearInterval(tickT);tickT=null}
+  try{if(wl)wl.release()}catch(e){}
+  clearTimeout(readyT);clearTimeout(sleepT);
+  try{if(AC&&AC.state==="running")AC.suspend()}catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){ruhe();return}
+  if(R&&!tickT)tickT=setInterval(tick,200);
+  if($("#status").dataset.s==="loading")checkReady();
+});
+window.addEventListener("pagehide",ruhe);
+window.addEventListener("hashchange",()=>{route();watchScores();refit()});
 
 /* App: offline, Installation, Updates */
 const LSI="einsingen-installhinweis-v1";
 const STANDALONE=(()=>{try{return navigator.standalone===true||matchMedia("(display-mode: standalone)").matches}catch(e){return false}})();
-const ANDROID=/Android/i.test(navigator.userAgent);
-const IOS=!ANDROID&&(/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1));
-const IOS_TXT=$("#install-txt").innerHTML;
-const ANDROID_TXT='<b>Als App installieren:</b> Im Browser-Menü <b>⋮</b> auf <b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b> tippen. Danach die App einmal mit Internet öffnen, bis oben „Offline bereit“ steht.';
-const PROMPT_TXT='<b>Als App installieren:</b> Dann startet Einsingen wie eine eigene App, auch ohne Internet.';
-let instEv=null;
-function showInstall(){
-  const box=$("#install");
-  let hide=false;try{hide=localStorage.getItem(LSI)==="1"}catch(e){}
-  const txt=instEv?PROMPT_TXT:IOS?IOS_TXT:ANDROID?ANDROID_TXT:"";
-  if(STANDALONE||hide||!txt){box.hidden=true;return}
-  $("#install-txt").innerHTML=txt;
-  $("#install-go").hidden=!instEv;
-  box.hidden=false;
-}
-async function doInstall(){
-  const e=instEv;if(!e)return;
-  instEv=null;
-  try{await e.prompt();const c=await e.userChoice;if(c&&c.outcome==="accepted"){$("#install").hidden=true;return}}catch(err){}
-  showInstall();
-}
-/* Android und Chrome: den eingebauten Installationsdialog über den eigenen Knopf anbieten */
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();instEv=e;showInstall()});
-window.addEventListener("appinstalled",()=>{instEv=null;$("#install").hidden=true});
 let readyT=null;
 async function checkReady(){
   clearTimeout(readyT);
@@ -1499,13 +1532,15 @@ async function checkReady(){
     const ok=await caches.match("abcjs-basic-min.js",{ignoreSearch:true})&&await caches.match("index.html",{ignoreSearch:true});
     if(ok){if($("#upd").hidden)setStatus("ok");return}
   }catch(e){}
-  setStatus("loading");readyT=setTimeout(checkReady,3000);
+  setStatus("loading");if(!document.hidden)readyT=setTimeout(checkReady,3000);
 }
 function initApp(){
   const fsb=document.querySelector('[data-act="fs"]');
   const de=document.documentElement;
   if(fsb&&(STANDALONE||!(de.requestFullscreen||de.webkitRequestFullscreen)))fsb.hidden=true;
-  showInstall();
+  const IH={S:{installZu:false},speichern(){try{localStorage.setItem(LSI,this.S.installZu?"1":"0")}catch(e){}}};
+  try{IH.S.installZu=localStorage.getItem(LSI)==="1"}catch(e){}
+  if(window.SC_INSTALL)SC_INSTALL.einrichten(IH);
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
   if(!("serviceWorker" in navigator)||!window.isSecureContext||!window.caches){setStatus("local");return}
   const had=!!navigator.serviceWorker.controller;
